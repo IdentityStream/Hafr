@@ -1,3 +1,5 @@
+using Superpower.Model;
+
 namespace Hafr.Expressions
 {
     public abstract class Expression
@@ -7,14 +9,14 @@ namespace Hafr.Expressions
             return new ConstantExpression(constant);
         }
 
-        public static Expression FunctionCall(string name, Expression[] arguments)
+        public static Expression FunctionCall(Position position, string name, Expression[] arguments)
         {
-            return new FunctionCallExpression(name, arguments);
+            return new FunctionCallExpression(position, name, arguments);
         }
 
-        public static Expression Property(string name)
+        public static Expression Property(Position position, string name)
         {
-            return new PropertyExpression(name);
+            return new PropertyExpression(position, name);
         }
 
         public static TemplateExpression Template(Expression[] parts)

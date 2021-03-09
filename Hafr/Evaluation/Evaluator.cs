@@ -60,8 +60,10 @@ namespace Hafr.Evaluation
         {
             if (!PropertyCache<TModel>.All.TryGetValue(property.Name, out var propertyInfo) || !propertyInfo.CanRead)
             {
-                throw new MissingMemberException($"Invalid property '{property.Name}'. " +
-                    $"Available properties: {string.Join(", ", PropertyCache<TModel>.All.Keys)}");
+                var propertyList = string.Join(", ", PropertyCache<TModel>.All.Keys);
+                throw new TemplateEvaluationException(
+                    $"Invalid property '{property.Name}'. Available properties: {propertyList}",
+                    property.Position);
             }
 
             var result = propertyInfo.GetValue(model);
@@ -99,20 +101,31 @@ namespace Hafr.Evaluation
         {
             var arguments = function.Arguments;
 
-            if (Functions.TryGetValue(function.Name, out var func))
+            if (!Functions.TryGetValue(function.Name, out var func))
             {
-                var values = new object[arguments.Length];
-
-                for (var i = 0; i < values.Length; i++)
-                {
-                    values[i] = Evaluate(arguments[i], model);
-                }
-
-                return func.DynamicInvoke(values);
+                var functionList = string.Join(", ", Functions.Keys);
+                throw new TemplateEvaluationException(
+                    $"Unknown function '{function.Name}'. Available functions: {functionList}",
+                    function.Position);
             }
 
-            throw new MissingMethodException($"Unknown function '{function.Name}'. " +
-            $"  Available functions: {string.Join(", ", Functions.Keys)}");
+            var values = new object[arguments.Length];
+
+            for (var i = 0; i < values.Length; i++)
+            {
+                values[i] = Evaluate(arguments[i], model);
+            }
+
+            try
+            {
+                return func.DynamicInvoke(values);
+            }
+            catch (Exception e)
+            {
+                throw new TemplateEvaluationException(
+                    $"An error occurred while calling function '{function.Name}': {e.Message}",
+                    function.Position);
+            }
         }
 
         private static class PropertyCache<TModel>

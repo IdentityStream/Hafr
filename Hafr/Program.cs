@@ -55,6 +55,11 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
                         Console.WriteLine($"{input} -> {evaluated.ToLower()}");
                         return;
                     }
+                    catch (TemplateEvaluationException ee)
+                    {
+                        position = ee.Position;
+                        error = ee.Message;
+                    }
                     catch (Exception e)
                     {
                         position = Position.Empty;

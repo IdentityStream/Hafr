@@ -1,14 +1,18 @@
 using System.Linq;
+using Superpower.Model;
 
 namespace Hafr.Expressions
 {
     public class FunctionCallExpression : Expression
     {
-        public FunctionCallExpression(string name, Expression[] arguments)
+        public FunctionCallExpression(Position position, string name, Expression[] arguments)
         {
+            Position = position;
             Name = name;
             Arguments = arguments;
         }
+
+        public Position Position { get; }
 
         public string Name { get; }
 

@@ -19,19 +19,19 @@ namespace Hafr.Parsing
 
         private static readonly TokenListParser<TemplateToken, Expression> Property =
             Token.EqualTo(TemplateToken.Identifier)
-                .Select(x => Expression.Property(x.ToStringValue()));
+                .Select(x => Expression.Property(x.Position, x.ToStringValue()));
 
         private static readonly TokenListParser<TemplateToken, Expression> Argument =
             Number.Or(String).Or(Parse.Ref(() => FunctionCall)).Try().Or(Property);
 
         private static readonly TokenListParser<TemplateToken, Expression> FunctionCall =
-            from identifier in Token.EqualTo(TemplateToken.Identifier).Select(x => x.ToStringValue())
+            from identifier in Token.EqualTo(TemplateToken.Identifier)
             from open in Token.EqualTo(TemplateToken.OpenParen)
             from arguments in Argument
                 .ManyDelimitedBy(
                     Token.EqualTo(TemplateToken.Comma),
                     end: Token.EqualTo(TemplateToken.CloseParen))
-            select Expression.FunctionCall(identifier, arguments);
+            select Expression.FunctionCall(identifier.Position, identifier.ToStringValue(), arguments);
 
         private static readonly TokenListParser<TemplateToken, Expression> Hole =
             from open in Token.EqualTo(TemplateToken.OpenCurly)
