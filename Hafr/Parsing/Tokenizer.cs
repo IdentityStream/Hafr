@@ -45,6 +45,11 @@ namespace Hafr.Parsing
                     return Parse(ref next, TemplateToken.Number, Numerics.IntegerInt32);
                 }
 
+                if (next.Value == '\'')
+                {
+                    return Parse(ref next, TemplateToken.String, QuotedString.SqlStyle);
+                }
+
                 return Parse(ref next, TemplateToken.Identifier, Identifier.CStyle);
             }
 

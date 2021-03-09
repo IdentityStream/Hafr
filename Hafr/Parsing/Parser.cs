@@ -12,12 +12,17 @@ namespace Hafr.Parsing
                 .Apply(Numerics.IntegerInt32)
                 .Select(x => Expression.Constant(x));
 
+        private static readonly TokenListParser<TemplateToken, Expression> String =
+            Token.EqualTo(TemplateToken.String)
+                .Apply(QuotedString.SqlStyle)
+                .Select(Expression.Constant);
+
         private static readonly TokenListParser<TemplateToken, Expression> Property =
             Token.EqualTo(TemplateToken.Identifier)
                 .Select(x => Expression.Property(x.ToStringValue()));
 
         private static readonly TokenListParser<TemplateToken, Expression> Argument =
-            Number.Or(Parse.Ref(() => FunctionCall)).Try().Or(Property);
+            Number.Or(String).Or(Parse.Ref(() => FunctionCall)).Try().Or(Property);
 
         private static readonly TokenListParser<TemplateToken, Expression> FunctionCall =
             from identifier in Token.EqualTo(TemplateToken.Identifier).Select(x => x.ToStringValue())

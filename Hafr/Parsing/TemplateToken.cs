@@ -19,6 +19,8 @@ namespace Hafr.Parsing
         [Token(Example = ",")]
         Comma,
 
+        String,
+
         Number,
 
         Identifier,
