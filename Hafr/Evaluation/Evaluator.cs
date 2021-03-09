@@ -9,6 +9,8 @@ namespace Hafr.Evaluation
 {
     public static class Evaluator
     {
+        private const StringSplitOptions SplitOptions = StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries;
+
         public static string Evaluate<TModel>(TemplateExpression template, TModel model)
         {
             var builder = new StringBuilder();
@@ -70,16 +72,28 @@ namespace Hafr.Evaluation
 
         private static readonly Dictionary<string, Delegate> Functions = new(StringComparer.OrdinalIgnoreCase)
         {
-            { "upper", new Func<string, string>(ToUpper) },
-            { "lower", new Func<string, string>(ToLower) },
-            { "start", new Func<string, int, string>(Start) },
+            { "split", new Func<string, string, IEnumerable<string>>((x, s) => x.Split(s, SplitOptions)) },
+            { "join", new Func<IEnumerable<string>, string, string>((x, s) => string.Join(s, x)) },
+            { "take", CreateFunc((s, i) => s.Substring(0, i)) },
+            { "first", new Func<object, string>(First) },
         };
 
-        private static string ToUpper(string value) => value.ToUpper();
+        private static Func<object, int, object> CreateFunc(Func<string, int, string> transformer)
+        {
+            return (x, i) => x switch
+            {
+                IEnumerable<string> c => c.Select(y => transformer(y, i)),
+                string s => transformer(s, i),
+                _ => throw new NotSupportedException(),
+            };
+        }
 
-        private static string ToLower(string value) => value.ToLower();
-
-        private static string Start(string value, int length) => value.Substring(0, length);
+        private static string First(object value) => value switch
+        {
+            IEnumerable<string> c => c.First(),
+            string s => s[0].ToString(),
+            _ => throw new NotSupportedException(),
+        };
 
         private static object CallFunction<TModel>(FunctionCallExpression function, TModel model)
         {
