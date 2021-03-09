@@ -7,6 +7,12 @@ namespace Hafr.Parsing
 {
     public class Tokenizer : Tokenizer<TemplateToken>
     {
+        public static readonly Tokenizer Instance = new();
+
+        private Tokenizer()
+        {
+        }
+
         protected override IEnumerable<Result<TemplateToken>> Tokenize(TextSpan span, TokenizationState<TemplateToken> state)
         {
             var next = SkipWhiteSpace(span);

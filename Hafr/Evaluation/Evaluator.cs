@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using Hafr.Expressions;
@@ -55,13 +56,10 @@ namespace Hafr.Evaluation
 
         private static object GetProperty<TModel>(PropertyExpression property, TModel model)
         {
-            const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
-
-            var propertyInfo = typeof(TModel).GetProperty(property.Name, bindingFlags);
-
-            if (propertyInfo is null || !propertyInfo.CanRead)
+            if (!PropertyCache<TModel>.All.TryGetValue(property.Name, out var propertyInfo) || !propertyInfo.CanRead)
             {
-                throw new MissingMemberException($"Invalid property: {property.Name}");
+                throw new MissingMemberException($"Invalid property '{property.Name}'. " +
+                    $"Available properties: {string.Join(", ", PropertyCache<TModel>.All.Keys)}");
             }
 
             var result = propertyInfo.GetValue(model);
@@ -99,7 +97,15 @@ namespace Hafr.Evaluation
                 return func.DynamicInvoke(values);
             }
 
-            throw new MissingMethodException($"Unknown function '{function.Name}'. Available functions: {string.Join(", ", Functions.Keys)}");
+            throw new MissingMethodException($"Unknown function '{function.Name}'. " +
+            $"  Available functions: {string.Join(", ", Functions.Keys)}");
+        }
+
+        private static class PropertyCache<TModel>
+        {
+            public static readonly Dictionary<string, PropertyInfo> All = typeof(TModel)
+                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
         }
     }
 }

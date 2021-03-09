@@ -21,39 +21,50 @@ namespace Hafr
  888   888 888    888   888    888        
 o888o o888o 88ooo88 8o o888o  o888o  v1.0");
             Console.ResetColor();
+            Console.WriteLine();
 
-            var tokenizer = new Tokenizer();
+            var model = new Person("Kristian", "Hellang");
+
+            Evaluate(model, "{firstName}.{lastName}");
+            Evaluate(model, "{start(firstName, 1)}{lastName}");
+            Evaluate(model, "{start(firstName, 2)}{start(lastName, 2)}");
+
+            Console.WriteLine();
 
             while (true)
             {
                 Console.Write(Prompt);
+                Evaluate(model, Console.ReadLine());
+                Console.WriteLine();
+            }
+        }
 
-                var line = Console.ReadLine();
+        private static void Evaluate(Person model, string input)
+        {
+            var result = Tokenizer.Instance.TryTokenize(input);
 
-                var result = tokenizer.TryTokenize(line);
-
-                if (result.HasValue)
+            if (result.HasValue)
+            {
+                if (Parser.TryParse(result.Value, out var expr, out var error, out var position))
                 {
-                    if (Parser.TryParse(result.Value, out var expr, out var error, out var position))
+                    try
                     {
-                        try
-                        {
-                            var model = new Person("Kristian", "Hellang");
-                            Console.WriteLine(Evaluator.Evaluate(expr, model));
-                        }
-                        catch (Exception e)
-                        {
-                            position = Position.Empty;
-                            error = e.Message;
-                        }
+                        var evaluated = Evaluator.Evaluate(expr, model);
+                        Console.WriteLine($"{input} -> {evaluated.ToLower()}");
+                        return;
                     }
-
-                    WriteError(error, position);
-                    continue;
+                    catch (Exception e)
+                    {
+                        position = Position.Empty;
+                        error = e.Message;
+                    }
                 }
 
-                WriteError(result.ToString(), result.ErrorPosition);
+                WriteError(error, position);
+                return;
             }
+
+            WriteError(result.ToString(), result.ErrorPosition);
         }
 
         private static void WriteError(string message, Position errorPosition)
