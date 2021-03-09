@@ -36,13 +36,13 @@ namespace Hafr.Parsing
 
         private static readonly TokenListParser<TemplateToken, Expression> Text =
             Token.EqualTo(TemplateToken.Text)
-                .Select(x => Expression.Constant(x.ToStringValue()));
+                .Select(x => Expression.Text(x.ToStringValue()));
 
-        private static readonly TokenListParser<TemplateToken, Expression> Template =
+        private static readonly TokenListParser<TemplateToken, TemplateExpression> Template =
             Hole.Or(Text).AtLeastOnce()
                 .Select(Expression.Template).AtEnd();
 
-        public static bool TryParse(TokenList<TemplateToken> tokens, out Expression expr, out string error, out Position errorPosition)
+        public static bool TryParse(TokenList<TemplateToken> tokens, out TemplateExpression expr, out string error, out Position errorPosition)
         {
             var result = Template(tokens);
             if (!result.HasValue)

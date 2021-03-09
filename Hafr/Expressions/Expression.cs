@@ -17,9 +17,14 @@ namespace Hafr.Expressions
             return new PropertyExpression(name);
         }
 
-        public static Expression Template(Expression[] parts)
+        public static TemplateExpression Template(Expression[] parts)
         {
             return new TemplateExpression(parts);
+        }
+
+        public static Expression Text(string value)
+        {
+            return new TextExpression(value);
         }
 
         public abstract override string ToString();

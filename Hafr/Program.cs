@@ -26,7 +26,6 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
 
             while (true)
             {
-                Console.WriteLine();
                 Console.Write(Prompt);
 
                 var line = Console.ReadLine();

@@ -8,36 +8,52 @@ namespace Hafr.Evaluation
 {
     public static class Evaluator
     {
-        public static string Evaluate<TModel>(Expression expression, TModel model)
+        public static string Evaluate<TModel>(TemplateExpression template, TModel model)
+        {
+            var builder = new StringBuilder();
+
+            foreach (var expression in template.Parts)
+            {
+                builder.Append(GetString(Evaluate(expression, model)));
+            }
+
+            return builder.ToString();
+        }
+
+        private static object Evaluate<TModel>(Expression expression, TModel model)
         {
             return expression switch
             {
-                ConstantExpression constant => GetString(constant),
+                TextExpression text => text.Value,
+                ConstantExpression constant => constant.Value,
                 PropertyExpression property => GetProperty(property, model),
                 FunctionCallExpression function => CallFunction(function, model),
-                TemplateExpression template => EvaluateTemplate(template, model),
+                TemplateExpression => throw new NotSupportedException("Template expressions are top-level expressions only."),
                 _ => throw new NotImplementedException($"Evaluation of {expression} has not been implemented."),
             };
         }
 
-        private static string GetString(ConstantExpression constant)
+        private static string GetString(object value)
         {
-            var value = constant.Value?.ToString();
-
             if (value is null)
             {
                 return "<null>";
             }
 
-            if (value.Length == 0)
+            if (value is string stringValue)
             {
-                return "<empty>";
+                if (stringValue.Length == 0)
+                {
+                    return "<empty>";
+                }
+
+                return stringValue;
             }
 
-            return value;
+            return value.ToString();
         }
 
-        private static string GetProperty<TModel>(PropertyExpression property, TModel model)
+        private static object GetProperty<TModel>(PropertyExpression property, TModel model)
         {
             const BindingFlags bindingFlags = BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase;
 
@@ -54,41 +70,36 @@ namespace Hafr.Evaluation
             return Evaluate(resultExpression, model);
         }
 
-        private static readonly Dictionary<string, Func<string, string>> Functions = new(StringComparer.OrdinalIgnoreCase)
+        private static readonly Dictionary<string, Delegate> Functions = new(StringComparer.OrdinalIgnoreCase)
         {
-            { "upper", s => s.ToUpper() },
-            { "lower", s => s.ToLower() },
-            { "first", s => s.Substring(0, 1) },
-            { "last", s => s[^1..] },
+            { "upper", new Func<string, string>(ToUpper) },
+            { "lower", new Func<string, string>(ToLower) },
+            { "start", new Func<string, int, string>(Start) },
         };
 
-        private static string CallFunction<TModel>(FunctionCallExpression function, TModel model)
+        private static string ToUpper(string value) => value.ToUpper();
+
+        private static string ToLower(string value) => value.ToLower();
+
+        private static string Start(string value, int length) => value.Substring(0, length);
+
+        private static object CallFunction<TModel>(FunctionCallExpression function, TModel model)
         {
             var arguments = function.Arguments;
 
-            if (arguments.Length != 1)
-            {
-                throw new ArgumentException($"Invalid argument count: {arguments.Length}. Expected a single argument.");
-            }
-
             if (Functions.TryGetValue(function.Name, out var func))
             {
-                return func(Evaluate(arguments[0], model));
+                var values = new object[arguments.Length];
+
+                for (var i = 0; i < values.Length; i++)
+                {
+                    values[i] = Evaluate(arguments[i], model);
+                }
+
+                return func.DynamicInvoke(values);
             }
 
             throw new MissingMethodException($"Unknown function '{function.Name}'. Available functions: {string.Join(", ", Functions.Keys)}");
-        }
-
-        private static string EvaluateTemplate<TModel>(TemplateExpression template, TModel model)
-        {
-            var builder = new StringBuilder();
-
-            foreach (var expression in template.Parts)
-            {
-                builder.Append(Evaluate(expression, model));
-            }
-
-            return builder.ToString();
         }
     }
 }
