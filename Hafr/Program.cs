@@ -23,11 +23,13 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
             Console.ResetColor();
             Console.WriteLine();
 
-            var model = new Person("Kristian", "Hellang");
+            var model = new Person("Tore Olav", "Kristiansen");
 
             Evaluate(model, "{firstName}.{lastName}");
-            Evaluate(model, "{start(firstName, 1)}{lastName}");
-            Evaluate(model, "{start(firstName, 2)}{start(lastName, 2)}");
+            Evaluate(model, "{take(firstName, 1)}{lastName}");
+            Evaluate(model, "{take(firstName, 2)}{take(lastName, 2)}");
+            Evaluate(model, "{join(take(split(firstName, ' '), 2), '') }{take(lastName, 2)}");
+            Evaluate(model, "{join(split(firstName, ' '), '.')}-{join(split(lastName, ' '), '.')}");
 
             Console.WriteLine();
 
