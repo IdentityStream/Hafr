@@ -29,6 +29,7 @@ namespace Hafr.Evaluation
             {
                 TextExpression text => text.Value,
                 ConstantExpression constant => constant.Value,
+                PipeExpression pipe => PipeValue(pipe, model),
                 PropertyExpression property => GetProperty(property, model),
                 FunctionCallExpression function => CallFunction(function, model),
                 TemplateExpression => throw new NotSupportedException("Template expressions are top-level expressions only."),
@@ -126,6 +127,16 @@ namespace Hafr.Evaluation
                     $"An error occurred while calling function '{function.Name}': {e.Message}",
                     function.Position);
             }
+        }
+
+        private static object PipeValue<TModel>(PipeExpression pipe, TModel model)
+        {
+            if (pipe.Right is FunctionCallExpression functionCall)
+            {
+                return Evaluate(functionCall.PipeArgument(pipe.Left), model);
+            }
+
+            throw new TemplateEvaluationException("Values can only be piped into a function.", pipe.Position);
         }
 
         private static class PropertyCache<TModel>
