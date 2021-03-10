@@ -32,6 +32,7 @@ namespace Hafr.Parsing
                 '(' => SimpleToken(ref next, TemplateToken.OpenParen, skipWhiteSpace: true),
                 ')' => SimpleToken(ref next, TemplateToken.CloseParen, skipWhiteSpace: true),
                 ',' => SimpleToken(ref next, TemplateToken.Comma, skipWhiteSpace: true),
+                '|' => SimpleToken(ref next, TemplateToken.Pipe, skipWhiteSpace: true),
                   _ => ComplexToken(ref next, state)
             };
         }
@@ -94,6 +95,7 @@ namespace Hafr.Parsing
             { Kind: TemplateToken.OpenCurly } => true,
             { Kind: TemplateToken.OpenParen } => true,
             { Kind: TemplateToken.Comma } => true,
+            { Kind: TemplateToken.Pipe } => true,
             _ => false
         };
     }
