@@ -29,6 +29,11 @@ namespace Hafr.Expressions
             return new TextExpression(value);
         }
 
+        public static Expression Pipe(Position position, Expression left, Expression right)
+        {
+            return new PipeExpression(position, left, right);
+        }
+
         public abstract override string ToString();
     }
 }

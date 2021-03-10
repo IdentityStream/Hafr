@@ -33,9 +33,13 @@ namespace Hafr.Parsing
                     end: Token.EqualTo(TemplateToken.CloseParen))
             select Expression.FunctionCall(identifier.Position, identifier.ToStringValue(), arguments);
 
+        private static readonly TokenListParser<TemplateToken, Expression> PipedFunctionChain =
+            Parse.Chain(Token.EqualTo(TemplateToken.Pipe), Argument,
+                (pipe, left, right) => Expression.Pipe(pipe.Position, left, right));
+
         private static readonly TokenListParser<TemplateToken, Expression> Hole =
             from open in Token.EqualTo(TemplateToken.OpenCurly)
-            from content in Argument
+            from content in PipedFunctionChain
             from close in Token.EqualTo(TemplateToken.CloseCurly)
             select content;
 
