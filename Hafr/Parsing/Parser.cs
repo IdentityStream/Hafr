@@ -26,11 +26,8 @@ namespace Hafr.Parsing
 
         private static readonly TokenListParser<TemplateToken, Expression> FunctionCall =
             from identifier in Token.EqualTo(TemplateToken.Identifier)
-            from open in Token.EqualTo(TemplateToken.OpenParen)
-            from arguments in Argument
-                .ManyDelimitedBy(
-                    Token.EqualTo(TemplateToken.Comma),
-                    end: Token.EqualTo(TemplateToken.CloseParen))
+            from arguments in Argument.ManyDelimitedBy(Token.EqualTo(TemplateToken.Comma))
+                    .Between(Token.EqualTo(TemplateToken.OpenParen), Token.EqualTo(TemplateToken.CloseParen))
             select Expression.FunctionCall(identifier.Position, identifier.ToStringValue(), arguments);
 
         private static readonly TokenListParser<TemplateToken, Expression> PipedFunctionChain =
@@ -38,18 +35,13 @@ namespace Hafr.Parsing
                 (pipe, left, right) => Expression.Pipe(pipe.Position, left, right));
 
         private static readonly TokenListParser<TemplateToken, Expression> Hole =
-            from open in Token.EqualTo(TemplateToken.OpenCurly)
-            from content in PipedFunctionChain
-            from close in Token.EqualTo(TemplateToken.CloseCurly)
-            select content;
+            PipedFunctionChain.Between(Token.EqualTo(TemplateToken.OpenCurly), Token.EqualTo(TemplateToken.CloseCurly));
 
         private static readonly TokenListParser<TemplateToken, Expression> Text =
-            Token.EqualTo(TemplateToken.Text)
-                .Select(x => Expression.Text(x.ToStringValue()));
+            Token.EqualTo(TemplateToken.Text).Select(x => Expression.Text(x.ToStringValue()));
 
         private static readonly TokenListParser<TemplateToken, TemplateExpression> Template =
-            Hole.Or(Text).AtLeastOnce()
-                .Select(Expression.Template).AtEnd();
+            Hole.Or(Text).AtLeastOnce().Select(Expression.Template).AtEnd();
 
         public static bool TryParse(TokenList<TemplateToken> tokens, out TemplateExpression expr, out string error, out Position errorPosition)
         {
