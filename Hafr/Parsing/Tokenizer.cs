@@ -39,7 +39,7 @@ namespace Hafr.Parsing
 
         private static Result<TemplateToken> ComplexToken(ref Result<char> next, TokenizationState<TemplateToken> state)
         {
-            if (ExpectIdentifier(state.Previous))
+            if (ExpectIdentifier(state.Previous?.Kind))
             {
                 if (char.IsDigit(next.Value))
                 {
@@ -90,12 +90,12 @@ namespace Hafr.Parsing
             return result;
         }
 
-        private static bool ExpectIdentifier(Token<TemplateToken>? previous) => previous switch
+        private static bool ExpectIdentifier(TemplateToken? previous) => previous switch
         {
-            { Kind: TemplateToken.OpenCurly } => true,
-            { Kind: TemplateToken.OpenParen } => true,
-            { Kind: TemplateToken.Comma } => true,
-            { Kind: TemplateToken.Pipe } => true,
+            TemplateToken.OpenCurly => true,
+            TemplateToken.OpenParen => true,
+            TemplateToken.Comma => true,
+            TemplateToken.Pipe => true,
             _ => false
         };
     }
