@@ -7,5 +7,6 @@
 
   <ItemGroup>
     <PackageReference Include="Superpower" Version="2.3.0" />
+    <PackageReference Include="Redskap" Version="1.1.0" />
   </ItemGroup>
 </Project>

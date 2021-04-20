@@ -2,6 +2,7 @@
 using System.Text;
 using Hafr.Evaluation;
 using Hafr.Parsing;
+using Redskap;
 using Superpower.Model;
 
 namespace Hafr
@@ -23,13 +24,12 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
             Console.ResetColor();
             Console.WriteLine();
 
-            var model = new Person("Tore Olav", "Kristiansen");
+            var model = new Person(Names.GenerateGivenName(), Names.GenerateFamilyName());
 
-            Evaluate(model, "{firstName}.{lastName}");
-            Evaluate(model, "{take(firstName, 1)}{lastName}");
-            Evaluate(model, "{take(firstName, 2)}{take(lastName, 2)}");
-            Evaluate(model, "{join(take(split(firstName, ' '), 2), '') }{take(lastName, 2)}");
-            Evaluate(model, "{join(split(firstName, ' '), '.')}-{join(split(lastName, ' '), '.')}");
+            for (var i = 0; i < 10; i++)
+            {
+                Evaluate(model = new Person(Names.GenerateGivenName(), Names.GenerateFamilyName()));
+            }
 
             Console.WriteLine();
 
@@ -39,6 +39,15 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
                 Evaluate(model, Console.ReadLine());
                 Console.WriteLine();
             }
+        }
+
+        private static void Evaluate(Person model)
+        {
+            Evaluate(model, "{ firstName }.{ lastName }");
+            Evaluate(model, "{ firstName | take(1) }{ lastName }");
+            Evaluate(model, "{ firstName | take(2) }{ lastName | take(2) }");
+            Evaluate(model, "{ firstName | split(' ') | join('.') }-{ lastName | split(' ') | join('.') }");
+            Console.WriteLine();
         }
 
         private static void Evaluate(Person model, string input)
@@ -51,8 +60,7 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
                 {
                     try
                     {
-                        var evaluated = Evaluator.Evaluate(expr, model);
-                        Console.WriteLine($"{input} -> {evaluated.ToLower()}");
+                        Console.WriteLine(Evaluator.Evaluate(expr, model).ToLower());
                         return;
                     }
                     catch (TemplateEvaluationException ee)
