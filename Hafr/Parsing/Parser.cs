@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Hafr.Expressions;
 using Superpower;
 using Superpower.Model;
@@ -43,7 +44,7 @@ namespace Hafr.Parsing
         private static readonly TokenListParser<TemplateToken, TemplateExpression> Template =
             Hole.Or(Text).AtLeastOnce().Select(Expression.Template).AtEnd();
 
-        public static bool TryParse(string input, out TemplateExpression expr, out string error, out Position errorPosition)
+        public static bool TryParse(string input, [NotNullWhen(true)] out TemplateExpression? expr, [NotNullWhen(false)] out string? error, out Position errorPosition)
         {
             var tokens = Tokenizer.Instance.TryTokenize(input);
             if (!tokens.HasValue)

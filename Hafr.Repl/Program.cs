@@ -50,8 +50,13 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
             Console.WriteLine();
         }
 
-        private static void Evaluate(Person model, string input)
+        private static void Evaluate(Person model, string? input)
         {
+            if (input is null)
+            {
+                return;
+            }
+
             if (Parser.TryParse(input, out var expr, out var error, out var position))
             {
                 try
