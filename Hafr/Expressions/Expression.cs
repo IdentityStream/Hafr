@@ -19,7 +19,7 @@ namespace Hafr.Expressions
             return new PropertyExpression(position, name);
         }
 
-        public static TemplateExpression Template(Expression[] parts)
+        public static Expression Template(Expression[] parts)
         {
             return new TemplateExpression(parts);
         }
