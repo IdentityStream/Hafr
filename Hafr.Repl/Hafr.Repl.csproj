@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Hafr\Hafr.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Redskap" Version="1.1.0" />
+  </ItemGroup>
+</Project>

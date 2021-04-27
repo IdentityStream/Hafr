@@ -5,7 +5,7 @@ using Hafr.Parsing;
 using Redskap;
 using Superpower.Model;
 
-namespace Hafr
+namespace Hafr.Repl
 {
     public static class Program
     {

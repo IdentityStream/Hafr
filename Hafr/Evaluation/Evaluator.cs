@@ -9,7 +9,7 @@ namespace Hafr.Evaluation
 {
     public static class Evaluator
     {
-        private const StringSplitOptions SplitOptions = StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries;
+        private const StringSplitOptions SplitOptions = StringSplitOptions.RemoveEmptyEntries;
 
         public static string Evaluate<TModel>(TemplateExpression template, TModel model)
         {
@@ -75,7 +75,7 @@ namespace Hafr.Evaluation
 
         private static readonly Dictionary<string, Delegate> Functions = new(StringComparer.OrdinalIgnoreCase)
         {
-            { "split", new Func<string, string, IEnumerable<string>>((x, s) => x.Split(s, SplitOptions)) },
+            { "split", new Func<string, string, IEnumerable<string>>((x, s) => x.Split(new[] { s }, SplitOptions).Select(x => x.Trim())) },
             { "join", new Func<IEnumerable<string>, string, string>((x, s) => string.Join(s, x)) },
             { "take", CreateFunc((s, i) => s.Substring(0, i)) },
             { "first", new Func<object, string>(First) },
