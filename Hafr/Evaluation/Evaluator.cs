@@ -23,6 +23,11 @@ namespace Hafr.Evaluation
             return builder.ToString();
         }
 
+        public static void RegisterFunction(string name, Delegate func)
+        {
+            Functions[name] = func;
+        }
+
         private static object Evaluate<TModel>(Expression expression, TModel model)
         {
             return expression switch
@@ -54,6 +59,16 @@ namespace Hafr.Evaluation
                 return stringValue;
             }
 
+            if (value is string[] stringArray)
+            {
+                if (stringArray.Length == 0)
+                {
+                    return "<empty>";
+                }
+
+                return string.Join(" ", stringArray);
+            }
+
             return value.ToString();
         }
 
@@ -75,28 +90,37 @@ namespace Hafr.Evaluation
 
         private static readonly Dictionary<string, Delegate> Functions = new(StringComparer.OrdinalIgnoreCase)
         {
-            { "split", new Func<string, string, IEnumerable<string>>((x, s) => x.Split(new[] { s }, SplitOptions).Select(x => x.Trim())) },
-            { "join", new Func<IEnumerable<string>, string, string>((x, s) => string.Join(s, x)) },
-            { "take", CreateFunc((s, i) => s.Substring(0, i)) },
-            { "first", new Func<object, string>(First) },
+            { "split", Map<string>(
+                (value, separator) => value.SelectMany(x => x.Split(new[] { separator }, SplitOptions)).Select(y => y.Trim()).ToArray(),
+                (value, separator) => value.Split(new[] { separator }, SplitOptions).Select(y => y.Trim()).ToArray()) },
+            { "join", Map<string>(
+                (value, separator) => string.Join(separator, value),
+                (value, _) => value) },
+            { "take", Map<int>(
+                (value, count) => value.Take(count).ToArray(),
+                (value, count) => value.Substring(0, count)) },
+            { "substr", Map<int>((s, i) => s.Substring(0, i)) },
         };
 
-        private static Func<object, int, object> CreateFunc(Func<string, int, string> transformer)
+        private static Func<object, T, object> Map<T>(Func<string, T, string> transformer)
         {
             return (x, i) => x switch
             {
-                IEnumerable<string> c => c.Select(y => transformer(y, i)),
-                string s => transformer(s, i),
+                string[] array => array.Select(y => transformer(y, i)).ToArray(),
+                string value => transformer(value, i),
                 _ => throw new NotSupportedException(),
             };
         }
 
-        private static string First(object value) => value switch
+        private static Func<object, T, object> Map<T>(Func<string[], T, object> multi, Func<string, T, object> single)
         {
-            IEnumerable<string> c => c.First(),
-            string s => s[0].ToString(),
-            _ => throw new NotSupportedException(),
-        };
+            return (x, i) => x switch
+            {
+                string[] array => multi(array, i),
+                string value => single(value, i),
+                _ => throw new NotSupportedException(),
+            };
+        }
 
         private static object CallFunction<TModel>(FunctionCallExpression function, TModel model)
         {
