@@ -52,34 +52,26 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
 
         private static void Evaluate(Person model, string input)
         {
-            var result = Tokenizer.Instance.TryTokenize(input);
-
-            if (result.HasValue)
+            if (Parser.TryParse(input, out var expr, out var error, out var position))
             {
-                if (Parser.TryParse(result.Value, out var expr, out var error, out var position))
+                try
                 {
-                    try
-                    {
-                        Console.WriteLine(Evaluator.Evaluate(expr, model).ToLower());
-                        return;
-                    }
-                    catch (TemplateEvaluationException ee)
-                    {
-                        position = ee.Position;
-                        error = ee.Message;
-                    }
-                    catch (Exception e)
-                    {
-                        position = Position.Empty;
-                        error = e.Message;
-                    }
+                    Console.WriteLine(Evaluator.Evaluate(expr, model).ToLower());
+                    return;
                 }
-
-                WriteError(error, position);
-                return;
+                catch (TemplateEvaluationException ee)
+                {
+                    position = ee.Position;
+                    error = ee.Message;
+                }
+                catch (Exception e)
+                {
+                    position = Position.Empty;
+                    error = e.Message;
+                }
             }
 
-            WriteError(result.ToString(), result.ErrorPosition);
+            WriteError(error, position);
         }
 
         private static void WriteError(string message, Position errorPosition)
