@@ -160,7 +160,7 @@ namespace Hafr.Evaluation
                 return Evaluate(functionCall.PipeArgument(pipe.Left), model);
             }
 
-            throw new TemplateEvaluationException("Values can only be piped into a function.", pipe.Position);
+            throw new TemplateEvaluationException($"Values can only be piped into a function. '{pipe.Right}' is not a function.", pipe.Position);
         }
 
         private static class PropertyCache<TModel>

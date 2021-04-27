@@ -16,7 +16,7 @@ namespace Hafr.Expressions
 
         public override string ToString()
         {
-            return $"get({Name})";
+            return Name;
         }
     }
 }
