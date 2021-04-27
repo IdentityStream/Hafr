@@ -16,6 +16,10 @@
 
     <MinVerDefaultPreReleasePhase>beta</MinVerDefaultPreReleasePhase>
     <MinVerTagPrefix>v</MinVerTagPrefix>
+    
+    <Description>
+      A library for parsing and evaluating template expression for generating email addresses.
+    </Description>
 
     <Authors>IdentityStream AS</Authors>
   </PropertyGroup>
