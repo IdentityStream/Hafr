@@ -1,4 +1,5 @@
 using System.Linq;
+using Hafr.Evaluation;
 
 namespace Hafr.Expressions
 {
@@ -10,6 +11,11 @@ namespace Hafr.Expressions
         }
 
         public Expression[] Parts { get; }
+
+        public string Evaluate<T>(T model)
+        {
+            return Evaluator.Evaluate(this, model);
+        }
 
         public override string ToString()
         {

@@ -20,7 +20,7 @@ namespace Hafr.Tests
 
             var model = new Person("Tore Olav", "Kristiansen");
 
-            var actual = Evaluator.Evaluate(expression!, model).ToLower();
+            var actual = expression!.Evaluate(model).ToLower();
 
             Assert.Equal(expected, actual);
         }
