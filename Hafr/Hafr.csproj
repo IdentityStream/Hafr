@@ -2,8 +2,8 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
 
-    <PackageProjectUrl>https://github.com/khellang/Hafr</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/khellang/Hafr</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/IdentityStream-AS/Hafr</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/IdentityStream-AS/Hafr</RepositoryUrl>
 
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
@@ -16,13 +16,21 @@
 
     <MinVerDefaultPreReleasePhase>beta</MinVerDefaultPreReleasePhase>
     <MinVerTagPrefix>v</MinVerTagPrefix>
-    
+
+
     <Description>
       A library for parsing and evaluating template expression for generating email addresses.
     </Description>
 
+    <PackageIcon>icon.png</PackageIcon>
+
     <Authors>IdentityStream AS</Authors>
+    <Company>IdentityStream AS</Company>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="../icon.png" Pack="true" PackagePath="/" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
