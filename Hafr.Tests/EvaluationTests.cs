@@ -14,15 +14,33 @@ namespace Hafr.Tests
         [InlineData("{firstName | substr(2)}{lastName | substr(1)}", "tok")]
         public void Evaluation_Outputs_Correct_Result(string template, string expected)
         {
-            var result = Parser.TryParse(template, out var expression, out var error, out var errorPosition);
+            var result = Parser.TryParse(template, out var expression, out var errorMessage, out var errorPosition);
 
-            Assert.True(result, $"Parsing template expression failed: {error}");
+            Assert.True(result, $"Parsing template expression failed: {errorMessage}");
 
             var model = new Person("Tore Olav", "Kristiansen");
 
             var actual = expression!.Evaluate(model).ToLower();
 
             Assert.Equal(expected, actual);
+        }
+
+        [Theory]
+        [InlineData("{firstName | split}", "An error occurred while calling function 'split': Parameter count mismatch.")]
+        [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, take, substr")]
+        [InlineData("{firstName | 2}", "Values can only be piped into a function. '2' is not a function.")]
+        [InlineData("{unknown}", "Invalid property 'unknown'. Available properties: FirstName, LastName")]
+        public void Evaluation_Outputs_Correct_ErrorMessage(string template, string expected)
+        {
+            var result = Parser.TryParse(template, out var expression, out var errorMessage, out var errorPosition);
+
+            Assert.True(result, $"Parsing template expression failed: {errorMessage}");
+
+            var model = new Person("Tore Olav", "Kristiansen");
+
+            var exception = Assert.Throws<TemplateEvaluationException>(() => expression!.Evaluate(model));
+
+            Assert.Equal(expected, exception.Message);
         }
 
         private record Person(string FirstName, string LastName);
