@@ -144,8 +144,9 @@ namespace Hafr.Evaluation
             }
             catch (Exception e)
             {
+                var baseException = e.GetBaseException();
                 throw new TemplateEvaluationException(
-                    $"An error occurred while calling function '{function.Name}': {e.Message}",
+                    $"An error occurred while calling function '{function.Name}': {baseException.Message}",
                     function.Position);
             }
         }
