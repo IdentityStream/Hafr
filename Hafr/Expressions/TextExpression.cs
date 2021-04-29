@@ -1,8 +1,10 @@
+using Superpower.Model;
+
 namespace Hafr.Expressions
 {
     public class TextExpression : Expression
     {
-        public TextExpression(string value)
+        public TextExpression(Position position, string value) : base(position)
         {
             Value = value;
         }

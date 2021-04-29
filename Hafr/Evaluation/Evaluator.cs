@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -76,9 +77,8 @@ namespace Hafr.Evaluation
         {
             if (!PropertyCache<TModel>.All.TryGetValue(property.Name, out var propertyInfo) || !propertyInfo.CanRead)
             {
-                var propertyList = string.Join(", ", PropertyCache<TModel>.All.Keys);
                 throw new TemplateEvaluationException(
-                    $"Invalid property '{property.Name}'. Available properties: {propertyList}",
+                    $"Invalid property '{property.Name}'. Available properties: {GetList(PropertyCache<TModel>.All.Keys)}",
                     property.Position);
             }
 
@@ -128,10 +128,7 @@ namespace Hafr.Evaluation
 
             if (!Functions.TryGetValue(function.Name, out var func))
             {
-                var functionList = string.Join(", ", Functions.Keys);
-                throw new TemplateEvaluationException(
-                    $"Unknown function '{function.Name}'. Available functions: {functionList}",
-                    function.Position);
+                throw GetUnknownFunctionException(function);
             }
 
             var values = new object[arguments.Length];
@@ -155,13 +152,38 @@ namespace Hafr.Evaluation
 
         private static object PipeValue<TModel>(PipeExpression pipe, TModel model)
         {
-            if (pipe.Right is FunctionCallExpression functionCall)
+            if (TryGetFunctionCall(pipe.Right, out var functionCall))
             {
                 return Evaluate(functionCall.PipeArgument(pipe.Left), model);
             }
 
-            throw new TemplateEvaluationException($"Values can only be piped into a function. '{pipe.Right}' is not a function.", pipe.Position);
+            throw GetUnknownFunctionException(pipe.Right);
         }
+
+        private static bool TryGetFunctionCall(Expression expression, [NotNullWhen(true)] out FunctionCallExpression? functionCall)
+        {
+            if (expression is FunctionCallExpression function)
+            {
+                functionCall = function;
+                return true;
+            }
+
+            if (expression is PropertyExpression property)
+            {
+                functionCall = new FunctionCallExpression(property.Position, property.Name, Array.Empty<Expression>());
+                return true;
+            }
+
+            functionCall = default;
+            return false;
+        }
+
+        private static TemplateEvaluationException GetUnknownFunctionException(Expression expression)
+        {
+            return new($"Unknown function '{expression}'. Available functions: {GetList(Functions.Keys)}",  expression.Position);
+        }
+
+        private static string GetList<T>(IEnumerable<T> source) => string.Join(", ", source);
 
         private static class PropertyCache<TModel>
         {

@@ -4,6 +4,13 @@ namespace Hafr.Expressions
 {
     public abstract class Expression
     {
+        protected Expression(Position position)
+        {
+            Position = position;
+        }
+
+        public Position Position { get; }
+
         public static Expression Constant(object constant)
         {
             return new ConstantExpression(constant);
@@ -24,9 +31,9 @@ namespace Hafr.Expressions
             return new TemplateExpression(parts);
         }
 
-        public static Expression Text(string value)
+        public static Expression Text(Position position, string value)
         {
-            return new TextExpression(value);
+            return new TextExpression(position, value);
         }
 
         public static Expression Pipe(Position position, Expression left, Expression right)

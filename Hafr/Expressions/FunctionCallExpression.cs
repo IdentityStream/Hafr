@@ -5,14 +5,11 @@ namespace Hafr.Expressions
 {
     public class FunctionCallExpression : Expression
     {
-        public FunctionCallExpression(Position position, string name, Expression[] arguments)
+        public FunctionCallExpression(Position position, string name, Expression[] arguments) : base(position)
         {
-            Position = position;
             Name = name;
             Arguments = arguments;
         }
-
-        public Position Position { get; }
 
         public string Name { get; }
 
@@ -25,7 +22,7 @@ namespace Hafr.Expressions
 
         public override string ToString()
         {
-            return $"{Name}({string.Join(", ", Arguments.Select(x => x.ToString()))})";
+            return Name;
         }
     }
 }

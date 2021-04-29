@@ -1,11 +1,12 @@
 using System.Linq;
 using Hafr.Evaluation;
+using Superpower.Model;
 
 namespace Hafr.Expressions
 {
     public class TemplateExpression : Expression
     {
-        public TemplateExpression(Expression[] parts)
+        public TemplateExpression(Expression[] parts) : base(Position.Zero)
         {
             Parts = parts;
         }

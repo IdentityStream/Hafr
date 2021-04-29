@@ -39,7 +39,7 @@ namespace Hafr.Parsing
             PipedFunctionChain.Between(Token.EqualTo(TemplateToken.OpenCurly), Token.EqualTo(TemplateToken.CloseCurly));
 
         private static readonly TokenListParser<TemplateToken, Expression> Text =
-            Token.EqualTo(TemplateToken.Text).Select(x => Expression.Text(x.ToStringValue()));
+            Token.EqualTo(TemplateToken.Text).Select(x => Expression.Text(x.Position, x.ToStringValue()));
 
         private static readonly TokenListParser<TemplateToken, Expression> Template =
             Hole.Or(Text).AtLeastOnce().Select(Expression.Template).AtEnd();

@@ -1,8 +1,10 @@
+using Superpower.Model;
+
 namespace Hafr.Expressions
 {
     public class ConstantExpression : Expression
     {
-        public ConstantExpression(object value)
+        public ConstantExpression(object value) : base(Position.Empty)
         {
             Value = value;
         }

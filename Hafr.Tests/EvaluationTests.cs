@@ -28,7 +28,7 @@ namespace Hafr.Tests
         [Theory]
         [InlineData("{firstName | split}", "An error occurred while calling function 'split': Parameter count mismatch.")]
         [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, take, substr")]
-        [InlineData("{firstName | 2}", "Values can only be piped into a function. '2' is not a function.")]
+        [InlineData("{firstName | 2}", "Unknown function '2'. Available functions: split, join, take, substr")]
         [InlineData("{unknown}", "Invalid property 'unknown'. Available properties: FirstName, LastName")]
         public void Evaluation_Outputs_Correct_ErrorMessage(string template, string expected)
         {

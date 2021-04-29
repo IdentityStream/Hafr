@@ -4,14 +4,11 @@ namespace Hafr.Expressions
 {
     public class PipeExpression : Expression
     {
-        public PipeExpression(Position position, Expression left, Expression right)
+        public PipeExpression(Position position, Expression left, Expression right) : base(position)
         {
-            Position = position;
             Left = left;
             Right = right;
         }
-
-        public Position Position { get; }
 
         public Expression Left { get; }
 

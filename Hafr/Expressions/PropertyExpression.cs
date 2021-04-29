@@ -4,13 +4,10 @@ namespace Hafr.Expressions
 {
     public class PropertyExpression : Expression
     {
-        public PropertyExpression(Position position, string name)
+        public PropertyExpression(Position position, string name) : base(position)
         {
-            Position = position;
             Name = name;
         }
-
-        public Position Position { get; }
 
         public string Name { get; }
 
