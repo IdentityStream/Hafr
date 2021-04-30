@@ -60,7 +60,7 @@ namespace Hafr.Tests
         [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, take, substr")]
         [InlineData("{firstName | 2}", "Unknown function '2'. Available functions: split, join, take, substr")]
         [InlineData("{substr(2, 2)}", "An error occurred while calling function 'substr': Specified method is not supported.")]
-        [InlineData("{unknown}", "Invalid property 'unknown'. Available properties: FirstName, LastName")]
+        [InlineData("{unknown}", "Unknown property 'unknown'. Available properties: FirstName, LastName")]
         public void Evaluation_Outputs_Correct_ErrorMessage(string template, string expected)
         {
             var result = Parser.TryParse(template, out var expression, out var errorMessage, out var errorPosition);
