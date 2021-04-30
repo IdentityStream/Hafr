@@ -36,7 +36,7 @@ namespace Hafr.Evaluation
                 PropertyExpression property => GetProperty(property, model),
                 FunctionCallExpression function => CallFunction(function, model),
                 MultiTemplateExpression => throw new NotSupportedException("Multi-template expressions are top-level expressions only."),
-                _ => throw new NotImplementedException($"Evaluation of {expression} has not been implemented."),
+                _ => throw new NotImplementedException(string.Format(Strings.EvaluationNotImplemented, expression)),
             };
         }
 
@@ -87,7 +87,7 @@ namespace Hafr.Evaluation
             if (!PropertyCache<TModel>.All.TryGetValue(property.Name, out var propertyInfo) || !propertyInfo.CanRead)
             {
                 throw new TemplateEvaluationException(
-                    $"Invalid property '{property.Name}'. Available properties: {GetList(PropertyCache<TModel>.All.Keys)}",
+                    string.Format(Strings.UnknownProperty, property.Name, GetList(PropertyCache<TModel>.All.Keys)),
                     property.Position);
             }
 
@@ -155,7 +155,7 @@ namespace Hafr.Evaluation
             {
                 var baseException = e.GetBaseException();
                 throw new TemplateEvaluationException(
-                    $"An error occurred while calling function '{function.Name}': {baseException.Message}",
+                    string.Format(Strings.FunctionError, function.Name, baseException.Message),
                     function.Position);
             }
         }
@@ -190,7 +190,7 @@ namespace Hafr.Evaluation
 
         private static TemplateEvaluationException GetUnknownFunctionException(Expression expression)
         {
-            return new($"Unknown function '{expression}'. Available functions: {GetList(Functions.Keys)}",  expression.Position);
+            return new(string.Format(Strings.UnknownFunction, expression, GetList(Functions.Keys)),  expression.Position);
         }
 
         private static string GetList<T>(IEnumerable<T> source) => string.Join(", ", source);

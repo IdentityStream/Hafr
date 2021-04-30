@@ -1,0 +1,26 @@
+<root>
+    <resheader name="resmimetype">
+        <value>text/microsoft-resx</value>
+    </resheader>
+    <resheader name="version">
+        <value>1.3</value>
+    </resheader>
+    <resheader name="reader">
+        <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <resheader name="writer">
+        <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+    </resheader>
+    <data name="EvaluationNotImplemented" xml:space="preserve">
+        <value>Evaluering av {0} er ikke implementert.</value>
+    </data>
+    <data name="FunctionError" xml:space="preserve">
+        <value>Det oppstod en feil ved kall av funksjonen '{0}': {1}</value>
+    </data>
+    <data name="UnknownFunction" xml:space="preserve">
+        <value>Ukjent funksjon '{0}'. Tilgjengelige funksjoner: {1}</value>
+    </data>
+    <data name="UnknownProperty" xml:space="preserve">
+        <value>Ukjent verdi '{0}'. Tilgjengelige verdier: {1}</value>
+    </data>
+</root>
