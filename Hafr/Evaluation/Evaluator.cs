@@ -12,16 +12,12 @@ namespace Hafr.Evaluation
     {
         private const StringSplitOptions SplitOptions = StringSplitOptions.RemoveEmptyEntries;
 
-        public static string Evaluate<TModel>(TemplateExpression template, TModel model)
+        public static IEnumerable<string> Evaluate<TModel>(MultiTemplateExpression template, TModel model)
         {
-            var builder = new StringBuilder();
-
-            foreach (var expression in template.Parts)
+            foreach (var part in template.Parts)
             {
-                builder.Append(GetString(Evaluate(expression, model)));
+                yield return EvaluateTemplate(part, model);
             }
-
-            return builder.ToString();
         }
 
         public static void RegisterFunction(string name, Delegate func)
@@ -36,14 +32,27 @@ namespace Hafr.Evaluation
                 TextExpression text => text.Value,
                 ConstantExpression constant => constant.Value,
                 PipeExpression pipe => PipeValue(pipe, model),
+                TemplateExpression part => EvaluateTemplate(part, model),
                 PropertyExpression property => GetProperty(property, model),
                 FunctionCallExpression function => CallFunction(function, model),
-                TemplateExpression => throw new NotSupportedException("Template expressions are top-level expressions only."),
+                MultiTemplateExpression => throw new NotSupportedException("Multi-template expressions are top-level expressions only."),
                 _ => throw new NotImplementedException($"Evaluation of {expression} has not been implemented."),
             };
         }
 
-        private static string GetString(object value)
+        private static string EvaluateTemplate<TModel>(TemplateExpression template, TModel model)
+        {
+            var builder = new StringBuilder();
+
+            foreach (var expression in template.Parts)
+            {
+                builder.Append(GetString(Evaluate(expression, model)));
+            }
+
+            return builder.ToString();
+        }
+
+        private static string GetString(object? value)
         {
             if (value is null)
             {

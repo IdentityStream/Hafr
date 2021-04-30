@@ -54,6 +54,11 @@ namespace Hafr.Parsing
                 return Parse(ref next, TemplateToken.Identifier, Identifier.CStyle);
             }
 
+            if (next.Value == '\r' || next.Value == '\n')
+            {
+                return Parse(ref next, TemplateToken.LineBreak, Character.WhiteSpace);
+            }
+
             return ConsumeUtil(ref next, TemplateToken.Text, '{');
         }
 

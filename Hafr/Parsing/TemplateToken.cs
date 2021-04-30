@@ -29,5 +29,7 @@ namespace Hafr.Parsing
         Identifier,
 
         Text,
+
+        LineBreak,
     }
 }

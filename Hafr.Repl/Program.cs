@@ -61,7 +61,10 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
             {
                 try
                 {
-                    Console.WriteLine(Evaluator.Evaluate(expr, model).ToLower());
+                    foreach (var result in Evaluator.Evaluate(expr, model))
+                    {
+                        Console.WriteLine(result.ToLower());
+                    }
                     return;
                 }
                 catch (TemplateEvaluationException ee)

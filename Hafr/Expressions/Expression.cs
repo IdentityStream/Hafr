@@ -26,7 +26,12 @@ namespace Hafr.Expressions
             return new PropertyExpression(position, name);
         }
 
-        public static Expression Template(Expression[] parts)
+        public static Expression MultiTemplate(TemplateExpression[] parts)
+        {
+            return new MultiTemplateExpression(parts);
+        }
+
+        public static TemplateExpression Template(Expression[] parts)
         {
             return new TemplateExpression(parts);
         }

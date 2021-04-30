@@ -1,5 +1,7 @@
+using System.Linq;
 using Hafr.Evaluation;
 using Hafr.Parsing;
+using Superpower.Model;
 using Xunit;
 
 namespace Hafr.Tests
@@ -20,9 +22,37 @@ namespace Hafr.Tests
 
             var model = new Person("Tore Olav", "Kristiansen");
 
-            var actual = expression!.Evaluate(model).ToLower();
+            var actual = expression!.Evaluate(model).Single().ToLower();
 
             Assert.Equal(expected, actual);
+        }
+
+        [Fact]
+        public void MultiLine_Evaluation_Outputs_Correct_Results()
+        {
+            const string template = "{firstName}\n{firstName}\r\n{firstName}";
+
+            var result = Parser.TryParse(template, out var expression, out var errorMessage, out var errorPosition);
+
+            Assert.True(result, $"Parsing template expression failed: {errorMessage}");
+
+            var model = new Person("Tore Olav", "Kristiansen");
+
+            var actual = expression!.Evaluate(model).Select(x => x.ToLower()).ToList();
+
+            Assert.All(actual, x => Assert.Equal("tore olav", x));
+        }
+
+        [Fact]
+        public void MultiLine_Parsing_Outputs_Correct_ErrorPosition()
+        {
+            const string template = "{firstName}\n{firstName}\r\n{";
+
+            var result = Parser.TryParse(template, out var expression, out var errorMessage, out var errorPosition);
+
+            Assert.False(result, $"Expected template parsing to fail.");
+
+            Assert.Equal(new Position(26, 3, 2), errorPosition);
         }
 
         [Theory]
@@ -39,7 +69,7 @@ namespace Hafr.Tests
 
             var model = new Person("Tore Olav", "Kristiansen");
 
-            var exception = Assert.Throws<TemplateEvaluationException>(() => expression!.Evaluate(model));
+            var exception = Assert.Throws<TemplateEvaluationException>(() => expression!.Evaluate(model).ToList());
 
             Assert.Equal(expected, exception.Message);
         }
