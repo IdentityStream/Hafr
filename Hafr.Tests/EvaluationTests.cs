@@ -28,6 +28,19 @@ namespace Hafr.Tests
         }
 
         [Fact]
+        public void Replace_Outputs_Correct_Result() {
+            var result = Parser.TryParse("{lastName | replace('ø', 'o')}", out var expression, out var errorMessage, out var errorPosition);
+
+            Assert.True(result, $"Parsing template expression failed: {errorMessage}");
+
+            var model = new Person("Peder", "Kjøs");
+
+            var actual = expression!.Evaluate(model).Single().ToLower();
+
+            Assert.Equal("kjos", actual);
+        }
+
+        [Fact]
         public void MultiLine_Evaluation_Outputs_Correct_Results()
         {
             const string template = "{firstName}\n{firstName}\r\n{firstName}";

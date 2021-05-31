@@ -48,6 +48,7 @@ Hafr has a few built-in methods that you can call to transform properties inside
 | `join`   | Takes a separator argument to join several parts into one.                        |
 | `substr` | Takes a count argument to extract a specified number of characters for each part. |
 | `take`   | Takes a count argument to pick a specified number of parts.                       |
+| `replace` | Takes a string to replace and its replacement value. |
 
 These methods can be called in one of two ways; using C-style function calls:
 

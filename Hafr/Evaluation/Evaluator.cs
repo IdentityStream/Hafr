@@ -109,6 +109,9 @@ namespace Hafr.Evaluation
                 (value, count) => value.Take(count).ToArray(),
                 (value, count) => value.Substring(0, count)) },
             { "substr", Map<int>((s, i) => s.Substring(0, i)) },
+            { "replace", Map<string, string>(
+                (value, old, @new) => value.SelectMany(x => x.Replace(old, @new)),
+                (value, old, @new) => value.Replace(old, @new)) },
         };
 
         private static Func<object, T, object> Map<T>(Func<string, T, string> transformer)
@@ -127,6 +130,14 @@ namespace Hafr.Evaluation
             {
                 string[] array => multi(array, i),
                 string value => single(value, i),
+                _ => throw new NotSupportedException(),
+            };
+        }
+
+        private static Func<object, T1, T2, object> Map<T1, T2>(Func<string[], T1, T2, object> multi, Func<string, T1, T2, object> single) {
+            return (x, a, b) => x switch {
+                string[] array => multi(array, a, b),
+                string value => single(value, a, b),
                 _ => throw new NotSupportedException(),
             };
         }
