@@ -40,11 +40,11 @@ namespace Hafr.Tests
             Assert.Equal("kjos", actual);
         }
 
-        [Fact]
-        public void MultiLine_Evaluation_Outputs_Correct_Results()
+        [Theory]
+        [InlineData("{firstName}\n{firstName}\r\n{firstName}", "tore olav")]
+        [InlineData("hello\nhello\r\nhello", "hello")]
+        public void MultiLine_Evaluation_Outputs_Correct_Results(string template, string expected)
         {
-            const string template = "{firstName}\n{firstName}\r\n{firstName}";
-
             var result = Parser.TryParse(template, out var expression, out var errorMessage, out var errorPosition);
 
             Assert.True(result, $"Parsing template expression failed: {errorMessage}");
@@ -53,7 +53,7 @@ namespace Hafr.Tests
 
             var actual = expression!.Evaluate(model).Select(x => x.ToLower()).ToList();
 
-            Assert.All(actual, x => Assert.Equal("tore olav", x));
+            Assert.All(actual, x => Assert.Equal(expected, x));
         }
 
         [Fact]

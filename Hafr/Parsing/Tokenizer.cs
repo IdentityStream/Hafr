@@ -80,7 +80,7 @@ namespace Hafr.Parsing
         {
             var begin = next.Location;
 
-            while (next.HasValue && next.Value != end)
+            while (next.HasValue && next.Value != end && next.Value != '\r' && next.Value != '\n')
             {
                 next = next.Remainder.ConsumeChar();
             }
