@@ -70,8 +70,8 @@ namespace Hafr.Tests
 
         [Theory]
         [InlineData("{firstName | split}", "An error occurred while calling function 'split': Parameter count mismatch.")]
-        [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, take, substr")]
-        [InlineData("{firstName | 2}", "Unknown function '2'. Available functions: split, join, take, substr")]
+        [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, take, substr, replace")]
+        [InlineData("{firstName | 2}", "Unknown function '2'. Available functions: split, join, take, substr, replace")]
         [InlineData("{substr(2, 2)}", "An error occurred while calling function 'substr': Specified method is not supported.")]
         [InlineData("{unknown}", "Unknown property 'unknown'. Available properties: FirstName, LastName")]
         public void Evaluation_Outputs_Correct_ErrorMessage(string template, string expected)
