@@ -11,7 +11,7 @@ namespace Hafr.Expressions
 
         public Position Position { get; }
 
-        public static Expression Constant(object constant)
+        public static Expression Constant(object? constant)
         {
             return new ConstantExpression(constant);
         }

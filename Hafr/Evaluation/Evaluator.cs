@@ -25,7 +25,7 @@ namespace Hafr.Evaluation
             Functions[name] = func;
         }
 
-        private static object Evaluate<TModel>(Expression expression, TModel model)
+        private static object? Evaluate<TModel>(Expression expression, TModel model)
         {
             return expression switch
             {
@@ -52,7 +52,7 @@ namespace Hafr.Evaluation
             return builder.ToString();
         }
 
-        private static string GetString(object? value)
+        private static string? GetString(object? value)
         {
             if (value is null)
             {
@@ -82,7 +82,7 @@ namespace Hafr.Evaluation
             return value.ToString();
         }
 
-        private static object GetProperty<TModel>(PropertyExpression property, TModel model)
+        private static object? GetProperty<TModel>(PropertyExpression property, TModel model)
         {
             if (!PropertyCache<TModel>.All.TryGetValue(property.Name, out var propertyInfo) || !propertyInfo.CanRead)
             {
@@ -145,7 +145,7 @@ namespace Hafr.Evaluation
             };
         }
 
-        private static object CallFunction<TModel>(FunctionCallExpression function, TModel model)
+        private static object? CallFunction<TModel>(FunctionCallExpression function, TModel model)
         {
             var arguments = function.Arguments;
 
@@ -154,7 +154,7 @@ namespace Hafr.Evaluation
                 throw GetUnknownFunctionException(function);
             }
 
-            var values = new object[arguments.Length];
+            var values = new object?[arguments.Length];
 
             for (var i = 0; i < values.Length; i++)
             {
@@ -174,7 +174,7 @@ namespace Hafr.Evaluation
             }
         }
 
-        private static object PipeValue<TModel>(PipeExpression pipe, TModel model)
+        private static object? PipeValue<TModel>(PipeExpression pipe, TModel model)
         {
             if (TryGetFunctionCall(pipe.Right, out var functionCall))
             {

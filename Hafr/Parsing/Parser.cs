@@ -23,7 +23,7 @@ namespace Hafr.Parsing
                 .Select(x => Expression.Property(x.Position, x.ToStringValue()));
 
         private static readonly TokenListParser<TemplateToken, Expression> Argument =
-            Number.Or(String).Or(Parse.Ref(() => FunctionCall)).Try().Or(Property);
+            Number.Or(String).Or(Parse.Ref(() => FunctionCall!)).Try().Or(Property);
 
         private static readonly TokenListParser<TemplateToken, Expression> FunctionCall =
             from identifier in Token.EqualTo(TemplateToken.Identifier)
