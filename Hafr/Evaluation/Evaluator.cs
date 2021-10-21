@@ -105,6 +105,9 @@ namespace Hafr.Evaluation
             { "join", Map<string>(
                 (value, separator) => string.Join(separator, value),
                 (value, _) => value) },
+            { "skip", Map<int>(
+                (value, count) => value.Skip(count).ToArray(),
+                (value, count) => value.Substring(count)) },
             { "take", Map<int>(
                 (value, count) => value.Take(count).ToArray(),
                 (value, count) => value.Substring(0, count)) },
