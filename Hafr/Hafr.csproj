@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFrameworks>netstandard2.0;net5.0</TargetFrameworks>
 
     <PackageProjectUrl>https://github.com/IdentityStream-AS/Hafr</PackageProjectUrl>
     <RepositoryUrl>https://github.com/IdentityStream-AS/Hafr</RepositoryUrl>
