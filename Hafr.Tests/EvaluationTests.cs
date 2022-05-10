@@ -10,6 +10,7 @@ namespace Hafr.Tests
     {
         [Theory]
         [InlineData("{firstName | split(' ') | substr(1) | join('')}{lastName | split(' ') | substr(1) | join('')}", "tok")]
+        [InlineData("{firstName | split(' ') | reverse | substr(1) | join('')}{lastName | split(' ') | substr(1) | join('')}", "otk")]
         [InlineData("{firstName | split(' ') | join('.')}.{lastName | split(' ') | join('.')}", "tore.olav.kristiansen")]
         [InlineData("{firstName | split(' ') | skip(1) | join('')}.{lastName | split(' ') | join('.')}", "olav.kristiansen")]
         [InlineData("{firstName | split(' ') | take(1)}{lastName | take(1)}", "torek")]
@@ -70,8 +71,8 @@ namespace Hafr.Tests
 
         [Theory]
         [InlineData("{firstName | split}", "An error occurred while calling function 'split': Parameter count mismatch.")]
-        [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, skip, take, substr, replace")]
-        [InlineData("{firstName | 2}", "Unknown function '2'. Available functions: split, join, skip, take, substr, replace")]
+        [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, skip, take, substr, replace, reverse")]
+        [InlineData("{firstName | 2}", "Unknown function '2'. Available functions: split, join, skip, take, substr, replace, reverse")]
         [InlineData("{substr(2, 2)}", "An error occurred while calling function 'substr': Specified method is not supported.")]
         [InlineData("{unknown}", "Unknown property 'unknown'. Available properties: FirstName, LastName")]
         public void Evaluation_Outputs_Correct_ErrorMessage(string template, string expected)

@@ -99,22 +99,37 @@ namespace Hafr.Evaluation
 
         private static readonly Dictionary<string, Delegate> Functions = new(StringComparer.OrdinalIgnoreCase)
         {
-            { "split", Map<string>(
-                (value, separator) => value.SelectMany(x => x.Split(new[] { separator }, SplitOptions)).Select(y => y.Trim()).ToArray(),
-                (value, separator) => value.Split(new[] { separator }, SplitOptions).Select(y => y.Trim()).ToArray()) },
-            { "join", Map<string>(
-                (value, separator) => string.Join(separator, value),
-                (value, _) => value) },
-            { "skip", Map<int>(
-                (value, count) => value.Skip(count).ToArray(),
-                (value, count) => value.Substring(count)) },
-            { "take", Map<int>(
-                (value, count) => value.Take(count).ToArray(),
-                (value, count) => value.Substring(0, count)) },
-            { "substr", Map<int>((s, i) => s.Substring(0, i)) },
-            { "replace", Map<string, string>(
-                (value, old, @new) => value.SelectMany(x => x.Replace(old, @new)),
-                (value, old, @new) => value.Replace(old, @new)) },
+            {
+                "split", Map<string>(
+                    (value, separator) => value.SelectMany(x => x.Split(new[] { separator }, SplitOptions)).Select(y => y.Trim()).ToArray(),
+                    (value, separator) => value.Split(new[] { separator }, SplitOptions).Select(y => y.Trim()).ToArray())
+            },
+            {
+                "join", Map<string>(
+                    (value, separator) => string.Join(separator, value),
+                    (value, _) => value)
+            },
+            {
+                "skip", Map<int>(
+                    (value, count) => value.Skip(count).ToArray(),
+                    (value, count) => value.Substring(count))
+            },
+            {
+                "take", Map<int>(
+                    (value, count) => value.Take(count).ToArray(),
+                    (value, count) => value.Substring(0, count))
+            },
+            {
+                "substr", Map<int>((s, i) => s.Substring(0, i))
+            },
+            {
+                "replace", Map<string, string>(
+                    (value, old, @new) => value.SelectMany(x => x.Replace(old, @new)),
+                    (value, old, @new) => value.Replace(old, @new))
+            },
+            {
+                "reverse", Map(Reverse, Reverse)
+            },
         };
 
         private static Func<object, T, object> Map<T>(Func<string, T, string> transformer)
@@ -123,6 +138,16 @@ namespace Hafr.Evaluation
             {
                 string[] array => array.Select(y => transformer(y, i)).ToArray(),
                 string value => transformer(value, i),
+                _ => throw new NotSupportedException(),
+            };
+        }
+
+        private static Func<object, object> Map(Func<string[], object> multi, Func<string, object> single)
+        {
+            return x => x switch
+            {
+                string[] array => multi(array),
+                string value => single(value),
                 _ => throw new NotSupportedException(),
             };
         }
@@ -143,6 +168,19 @@ namespace Hafr.Evaluation
                 string value => single(value, a, b),
                 _ => throw new NotSupportedException(),
             };
+        }
+
+        private static string Reverse(string value)
+        {
+            var chars = value.ToCharArray();
+            Array.Reverse(chars);
+            return new string(chars);
+        }
+
+        private static string[] Reverse(string[] value)
+        {
+            Array.Reverse(value);
+            return value;
         }
 
         private static object? CallFunction<TModel>(FunctionCallExpression function, TModel model)

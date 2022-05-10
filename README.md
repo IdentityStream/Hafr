@@ -50,6 +50,7 @@ Hafr has a few built-in methods that you can call to transform properties inside
 | `skip`    | Takes a count argument to skip a specified number of parts.                       |
 | `take`    | Takes a count argument to pick a specified number of parts.                       |
 | `replace` | Takes a string to replace and its replacement value.                              |
+| `reverse` | Reverses a string or a list of strings                                            |
 
 These methods can be called in one of two ways; using C-style function calls:
 
