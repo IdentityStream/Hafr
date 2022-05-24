@@ -129,6 +129,13 @@ namespace Hafr.Evaluation
                     continue;
                 }
 
+                // Skip indexers
+                var indexParameters = property.GetIndexParameters();
+                if (indexParameters?.Length > 0)
+                {
+                    continue;
+                }
+
                 values.Add(property.Name, property.GetValue(model) ?? string.Empty);
             }
 
