@@ -11,12 +11,12 @@ namespace Hafr.Repl
     {
         private const string Prompt = "hafr> ";
 
-        public static void Main(string[] args)
+        public static void Main()
         {
             Console.OutputEncoding = Encoding.UTF8;
 
             Console.ForegroundColor = ConsoleColor.DarkRed;
-            Console.WriteLine($@"ooooo ooooo              o888o            
+            Console.WriteLine(@"ooooo ooooo              o888o            
  888   888   ooooooo   o888oo oo oooooo   
  888ooo888   ooooo888   888    888    888 
  888   888 888    888   888    888        
@@ -61,7 +61,7 @@ o888o o888o 88ooo88 8o o888o  o888o  v1.0");
             {
                 try
                 {
-                    foreach (var result in Evaluator.Evaluate(expr, model))
+                    foreach (var result in Evaluator.EvaluateModel(expr, model))
                     {
                         Console.WriteLine(result.ToLower());
                     }

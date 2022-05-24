@@ -17,26 +17,26 @@ namespace Hafr.Tests
         [InlineData("{firstName | substr(2)}{lastName | substr(1)}", "tok")]
         public void Evaluation_Outputs_Correct_Result(string template, string expected)
         {
-            var result = Parser.TryParse(template, out var expression, out var errorMessage, out var errorPosition);
+            var result = Parser.TryParse(template, out var expression, out var errorMessage, out _);
 
             Assert.True(result, $"Parsing template expression failed: {errorMessage}");
 
             var model = new Person("Tore Olav", "Kristiansen");
 
-            var actual = expression!.Evaluate(model).Single().ToLower();
+            var actual = expression!.EvaluateModel(model).Single().ToLower();
 
             Assert.Equal(expected, actual);
         }
 
         [Fact]
         public void Replace_Outputs_Correct_Result() {
-            var result = Parser.TryParse("{lastName | replace('ø', 'o')}", out var expression, out var errorMessage, out var errorPosition);
+            var result = Parser.TryParse("{lastName | replace('ï¿½', 'o')}", out var expression, out var errorMessage, out _);
 
             Assert.True(result, $"Parsing template expression failed: {errorMessage}");
 
-            var model = new Person("Peder", "Kjøs");
+            var model = new Person("Peder", "Kjï¿½s");
 
-            var actual = expression!.Evaluate(model).Single().ToLower();
+            var actual = expression!.EvaluateModel(model).Single().ToLower();
 
             Assert.Equal("kjos", actual);
         }
@@ -52,7 +52,7 @@ namespace Hafr.Tests
 
             var model = new Person("Tore Olav", "Kristiansen");
 
-            var actual = expression!.Evaluate(model).Select(x => x.ToLower()).ToList();
+            var actual = expression!.EvaluateModel(model).Select(x => x.ToLower()).ToList();
 
             Assert.All(actual, x => Assert.Equal(expected, x));
         }
@@ -62,9 +62,9 @@ namespace Hafr.Tests
         {
             const string template = "{firstName}\n{firstName}\r\n{";
 
-            var result = Parser.TryParse(template, out var expression, out var errorMessage, out var errorPosition);
+            var result = Parser.TryParse(template, out _, out _, out var errorPosition);
 
-            Assert.False(result, $"Expected template parsing to fail.");
+            Assert.False(result, "Expected template parsing to fail.");
 
             Assert.Equal(new Position(26, 3, 2), errorPosition);
         }
@@ -83,7 +83,7 @@ namespace Hafr.Tests
 
             var model = new Person("Tore Olav", "Kristiansen");
 
-            var exception = Assert.Throws<TemplateEvaluationException>(() => expression!.Evaluate(model).ToList());
+            var exception = Assert.Throws<TemplateEvaluationException>(() => expression!.EvaluateModel(model).ToList());
 
             Assert.Equal(expected, exception.Message);
         }

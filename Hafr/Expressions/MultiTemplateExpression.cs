@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Hafr.Evaluation;
@@ -14,9 +15,24 @@ namespace Hafr.Expressions
 
         public TemplateExpression[] Parts { get; }
 
-        public IEnumerable<string> Evaluate<T>(T model) where T : notnull
+        public IEnumerable<string> EvaluateModel<T>(T model) where T : notnull
         {
-            return Evaluator.Evaluate(this, model);
+            return Evaluator.EvaluateModel(this, model);
+        }
+
+        public IEnumerable<string> EvaluateModel(object model)
+        {
+            return Evaluator.EvaluateModel(this, model);
+        }
+
+        public IEnumerable<string> EvaluateModel(object model, Type? modelType)
+        {
+            return Evaluator.EvaluateModel(this, model, modelType);
+        }
+
+        public IEnumerable<string> EvaluateProperties(IDictionary<string, object> properties)
+        {
+            return Evaluator.EvaluateProperties(this, properties);
         }
 
         public override string ToString()

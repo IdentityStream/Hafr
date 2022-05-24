@@ -5,7 +5,7 @@ using Superpower.Parsers;
 
 namespace Hafr.Parsing
 {
-    public class Tokenizer : Tokenizer<TemplateToken>
+    public sealed class Tokenizer : Tokenizer<TemplateToken>
     {
         public static readonly Tokenizer Instance = new();
 
