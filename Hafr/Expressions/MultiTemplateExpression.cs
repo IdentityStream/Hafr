@@ -14,7 +14,7 @@ namespace Hafr.Expressions
 
         public TemplateExpression[] Parts { get; }
 
-        public IEnumerable<string> Evaluate<T>(T model)
+        public IEnumerable<string> Evaluate<T>(T model) where T : notnull
         {
             return Evaluator.Evaluate(this, model);
         }

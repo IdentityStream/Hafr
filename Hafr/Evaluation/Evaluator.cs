@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -12,11 +13,31 @@ namespace Hafr.Evaluation
     {
         private const StringSplitOptions SplitOptions = StringSplitOptions.RemoveEmptyEntries;
 
-        public static IEnumerable<string> Evaluate<TModel>(MultiTemplateExpression template, TModel model)
+        public static IEnumerable<string> Evaluate<TModel>(MultiTemplateExpression template, TModel model) where TModel : notnull
         {
+            return Evaluate(template, model, typeof(TModel));
+        }
+
+        public static IEnumerable<string> Evaluate(MultiTemplateExpression template, object model)
+        {
+            if (model is null)
+            {
+                throw new ArgumentNullException(nameof(model));
+            }
+
+            return Evaluate(template, model, model.GetType());
+        }
+
+        public static IEnumerable<string> Evaluate(MultiTemplateExpression template, object model, Type modelType)
+        {
+            if (template is null)
+            {
+                throw new ArgumentNullException(nameof(template));
+            }
+
             foreach (var part in template.Parts)
             {
-                yield return EvaluateTemplate(part, model);
+                yield return EvaluateTemplate(part, model, modelType);
             }
         }
 
@@ -25,28 +46,28 @@ namespace Hafr.Evaluation
             Functions[name] = func;
         }
 
-        private static object? Evaluate<TModel>(Expression expression, TModel model)
+        private static object? Evaluate(Expression expression, object model, Type modelType)
         {
             return expression switch
             {
                 TextExpression text => text.Value,
                 ConstantExpression constant => constant.Value,
-                PipeExpression pipe => PipeValue(pipe, model),
-                TemplateExpression part => EvaluateTemplate(part, model),
-                PropertyExpression property => GetProperty(property, model),
-                FunctionCallExpression function => CallFunction(function, model),
+                PipeExpression pipe => PipeValue(pipe, model, modelType),
+                TemplateExpression part => EvaluateTemplate(part, model, modelType),
+                PropertyExpression property => GetProperty(property, model, modelType),
+                FunctionCallExpression function => CallFunction(function, model, modelType),
                 MultiTemplateExpression => throw new NotSupportedException("Multi-template expressions are top-level expressions only."),
                 _ => throw new NotImplementedException(string.Format(Strings.EvaluationNotImplemented, expression)),
             };
         }
 
-        private static string EvaluateTemplate<TModel>(TemplateExpression template, TModel model)
+        private static string EvaluateTemplate(TemplateExpression template, object model, Type modelType)
         {
             var builder = new StringBuilder();
 
             foreach (var expression in template.Parts)
             {
-                builder.Append(GetString(Evaluate(expression, model)));
+                builder.Append(GetString(Evaluate(expression, model, modelType)));
             }
 
             return builder.ToString();
@@ -82,19 +103,19 @@ namespace Hafr.Evaluation
             return value.ToString();
         }
 
-        private static object? GetProperty<TModel>(PropertyExpression property, TModel model)
+        private static object? GetProperty(PropertyExpression property, object model, Type modelType)
         {
-            if (!PropertyCache<TModel>.All.TryGetValue(property.Name, out var propertyInfo) || !propertyInfo.CanRead)
+            if (!PropertyCache.TryGetProperty(modelType, property.Name, out var propertyInfo) || !propertyInfo.CanRead)
             {
                 throw new TemplateEvaluationException(
-                    string.Format(Strings.UnknownProperty, property.Name, GetList(PropertyCache<TModel>.All.Keys)),
+                    string.Format(Strings.UnknownProperty, property.Name, GetList(PropertyCache.GetNames(modelType))),
                     property.Position);
             }
 
             var result = propertyInfo.GetValue(model);
             var resultExpression = Expression.Constant(result);
 
-            return Evaluate(resultExpression, model);
+            return Evaluate(resultExpression, model, modelType);
         }
 
         private static readonly Dictionary<string, Delegate> Functions = new(StringComparer.OrdinalIgnoreCase)
@@ -183,7 +204,7 @@ namespace Hafr.Evaluation
             return value;
         }
 
-        private static object? CallFunction<TModel>(FunctionCallExpression function, TModel model)
+        private static object? CallFunction(FunctionCallExpression function, object model, Type modelType)
         {
             var arguments = function.Arguments;
 
@@ -196,7 +217,7 @@ namespace Hafr.Evaluation
 
             for (var i = 0; i < values.Length; i++)
             {
-                values[i] = Evaluate(arguments[i], model);
+                values[i] = Evaluate(arguments[i], model, modelType);
             }
 
             try
@@ -212,11 +233,11 @@ namespace Hafr.Evaluation
             }
         }
 
-        private static object? PipeValue<TModel>(PipeExpression pipe, TModel model)
+        private static object? PipeValue(PipeExpression pipe, object model, Type modelType)
         {
             if (TryGetFunctionCall(pipe.Right, out var functionCall))
             {
-                return Evaluate(functionCall.PipeArgument(pipe.Left), model);
+                return Evaluate(functionCall.PipeArgument(pipe.Left), model, modelType);
             }
 
             throw GetUnknownFunctionException(pipe.Right);
@@ -247,11 +268,21 @@ namespace Hafr.Evaluation
 
         private static string GetList<T>(IEnumerable<T> source) => string.Join(", ", source);
 
-        private static class PropertyCache<TModel>
+        private static class PropertyCache
         {
-            public static readonly Dictionary<string, PropertyInfo> All = typeof(TModel)
-                .GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
+            private static readonly ConcurrentDictionary<Type, Dictionary<string, PropertyInfo>> _propertyCache = new();
+
+            public static bool TryGetProperty(Type type, string name, [NotNullWhen(true)] out PropertyInfo? property) =>
+                _propertyCache.GetOrAdd(type, GetProperties).TryGetValue(name, out property);
+
+            public static IEnumerable<string> GetNames(Type type)
+            {
+                return _propertyCache.GetOrAdd(type, GetProperties).Keys;
+            }
+
+            private static Dictionary<string, PropertyInfo> GetProperties(Type type) =>
+                type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                    .ToDictionary(x => x.Name, StringComparer.OrdinalIgnoreCase);
         }
     }
 }
