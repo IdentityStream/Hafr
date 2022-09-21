@@ -1,8 +1,9 @@
 <Project>
   <PropertyGroup>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <LangVersion>10.0</LangVersion>
-    <Nullable>Enable</Nullable>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>
