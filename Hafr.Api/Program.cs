@@ -31,7 +31,7 @@ app.MapPost("evaluate", (EvaluationModel model) =>
 
     try
     {
-        return Results.Json(expression.EvaluateProperties(model.Data));
+        return Results.Json(expression.EvaluateProperties(model.Data).ToList());
     }
     catch (TemplateEvaluationException tee)
     {
