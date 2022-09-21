@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using Hafr.Expressions;
@@ -40,19 +37,19 @@ namespace Hafr.Evaluation
             return EvaluateCaseInsensitiveProperties(template, caseInsensitiveProperties);
         }
 
-        public static IEnumerable<string> EvaluateProperties(MultiTemplateExpression template, IDictionary<string, object> properties)
+        public static IEnumerable<string> EvaluateProperties(MultiTemplateExpression template, IDictionary<string, object?> properties)
         {
             if (properties is null)
             {
                 throw new ArgumentNullException(nameof(properties));
             }
 
-            var caseInsensitiveProperties = new Dictionary<string, object>(properties, StringComparer.OrdinalIgnoreCase);
+            var caseInsensitiveProperties = new Dictionary<string, object?>(properties, StringComparer.OrdinalIgnoreCase);
 
             return EvaluateCaseInsensitiveProperties(template, caseInsensitiveProperties);
         }
 
-        private static IEnumerable<string> EvaluateCaseInsensitiveProperties(MultiTemplateExpression template, IDictionary<string, object> properties)
+        private static IEnumerable<string> EvaluateCaseInsensitiveProperties(MultiTemplateExpression template, IDictionary<string, object?> properties)
         {
             if (template is null)
             {
@@ -75,7 +72,7 @@ namespace Hafr.Evaluation
             Functions[name] = func;
         }
 
-        private static object? Evaluate(Expression expression, IDictionary<string, object> properties)
+        private static object? Evaluate(Expression expression, IDictionary<string, object?> properties)
         {
             return expression switch
             {
@@ -90,7 +87,7 @@ namespace Hafr.Evaluation
             };
         }
 
-        private static string EvaluateTemplate(TemplateExpression template, IDictionary<string, object> properties)
+        private static string EvaluateTemplate(TemplateExpression template, IDictionary<string, object?> properties)
         {
             var builder = new StringBuilder();
 
@@ -132,11 +129,11 @@ namespace Hafr.Evaluation
             return value.ToString();
         }
 
-        private static IDictionary<string, object> GetModelProperties(object model, Type modelType)
+        private static IDictionary<string, object?> GetModelProperties(object model, Type modelType)
         {
-            var values = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+            var values = new Dictionary<string, object?>(StringComparer.OrdinalIgnoreCase);
 
-            foreach (var property in PropertyCache.GetProperties(modelType))
+            foreach (var property in ReflectionCache.GetProperties(modelType))
             {
                 if (!property.CanRead)
                 {
@@ -156,7 +153,7 @@ namespace Hafr.Evaluation
             return values;
         }
 
-        private static object? GetProperty(PropertyExpression property, IDictionary<string, object> properties)
+        private static object? GetProperty(PropertyExpression property, IDictionary<string, object?> properties)
         {
             if (!properties.TryGetValue(property.Name, out var value))
             {
@@ -233,8 +230,10 @@ namespace Hafr.Evaluation
             };
         }
 
-        private static Func<object, T1, T2, object> Map<T1, T2>(Func<string[], T1, T2, object> multi, Func<string, T1, T2, object> single) {
-            return (x, a, b) => x switch {
+        private static Func<object, T1, T2, object> Map<T1, T2>(Func<string[], T1, T2, object> multi, Func<string, T1, T2, object> single)
+        {
+            return (x, a, b) => x switch
+            {
                 string[] array => multi(array, a, b),
                 string value => single(value, a, b),
                 _ => throw new NotSupportedException(),
@@ -254,7 +253,7 @@ namespace Hafr.Evaluation
             return value;
         }
 
-        private static object? CallFunction(FunctionCallExpression function, IDictionary<string, object> properties)
+        private static object? CallFunction(FunctionCallExpression function, IDictionary<string, object?> properties)
         {
             var arguments = function.Arguments;
 
@@ -283,7 +282,7 @@ namespace Hafr.Evaluation
             }
         }
 
-        private static object? PipeValue(PipeExpression pipe, IDictionary<string, object> properties)
+        private static object? PipeValue(PipeExpression pipe, IDictionary<string, object?> properties)
         {
             if (TryGetFunctionCall(pipe.Right, out var functionCall))
             {
@@ -313,17 +312,17 @@ namespace Hafr.Evaluation
 
         private static TemplateEvaluationException GetUnknownFunctionException(Expression expression)
         {
-            return new(string.Format(Strings.UnknownFunction, expression, GetList(Functions.Keys)),  expression.Position);
+            return new(string.Format(Strings.UnknownFunction, expression, GetList(Functions.Keys)), expression.Position);
         }
 
         private static string GetList<T>(IEnumerable<T> source) => string.Join(", ", source);
 
-        private static class PropertyCache
+        private static class ReflectionCache
         {
-            private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> _propertyCache = new();
+            private static readonly ConcurrentDictionary<Type, IReadOnlyCollection<PropertyInfo>> PropertyCache = new();
 
             public static IReadOnlyCollection<PropertyInfo> GetProperties(Type type) =>
-                _propertyCache.GetOrAdd(type, ReadProperties);
+                PropertyCache.GetOrAdd(type, ReadProperties);
 
             private static List<PropertyInfo> ReadProperties(Type type) =>
                 type.GetProperties(BindingFlags.Public | BindingFlags.Instance).ToList();

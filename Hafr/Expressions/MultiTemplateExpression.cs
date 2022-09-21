@@ -30,7 +30,7 @@ namespace Hafr.Expressions
             return Evaluator.EvaluateModel(this, model, modelType);
         }
 
-        public IEnumerable<string> EvaluateProperties(IDictionary<string, object> properties)
+        public IEnumerable<string> EvaluateProperties(IDictionary<string, object?> properties)
         {
             return Evaluator.EvaluateProperties(this, properties);
         }

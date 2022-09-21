@@ -49,15 +49,3 @@ app.MapPost("evaluate", (EvaluationModel model) =>
 });
 
 app.Run();
-
-public class EvaluationModel
-{
-    public EvaluationModel()
-    {
-        Data = new Dictionary<string, object>();
-    }
-    
-    public string Template { get; set; } = null!;
-
-    public Dictionary<string, object> Data { get; }
-}
