@@ -1,4 +1,3 @@
-using System;
 using Superpower.Model;
 
 namespace Hafr.Evaluation

@@ -1,4 +1,3 @@
-using System.Linq;
 using Hafr.Evaluation;
 using Hafr.Parsing;
 using Superpower.Model;
@@ -9,12 +8,12 @@ namespace Hafr.Tests
     public class EvaluationTests
     {
         [Theory]
-        [InlineData("{firstName | split(' ') | substr(1) | join('')}{lastName | split(' ') | substr(1) | join('')}", "tok")]
-        [InlineData("{firstName | split(' ') | reverse | substr(1) | join('')}{lastName | split(' ') | substr(1) | join('')}", "otk")]
-        [InlineData("{firstName | split(' ') | join('.')}.{lastName | split(' ') | join('.')}", "tore.olav.kristiansen")]
-        [InlineData("{firstName | split(' ') | skip(1) | join('')}.{lastName | split(' ') | join('.')}", "olav.kristiansen")]
-        [InlineData("{firstName | split(' ') | take(1)}{lastName | take(1)}", "torek")]
-        [InlineData("{firstName | substr(2)}{lastName | substr(1)}", "tok")]
+        [InlineData("{firstName | split(' ') | substr(1) | join('') | lower}{lastName | split(' ') | substr(1) | join('') | lower}", "tok")]
+        [InlineData("{firstName | split(' ') | reverse | substr(1) | join('') | lower}{lastName | split(' ') | substr(1) | join('') | lower}", "otk")]
+        [InlineData("{firstName | split(' ') | join('.') | lower}.{lastName | split(' ') | join('.') | lower}", "tore.olav.kristiansen")]
+        [InlineData("{firstName | split(' ') | skip(1) | join('') | lower}.{lastName | split(' ') | join('.') | lower}", "olav.kristiansen")]
+        [InlineData("{firstName | split(' ') | take(1) | upper}{lastName | take(1) | upper}", "TOREK")]
+        [InlineData("{firstName | substr(2) | lower}{lastName | substr(1) | lower}", "tok")]
         public void Evaluation_Outputs_Correct_Result(string template, string expected)
         {
             var result = Parser.TryParse(template, out var expression, out var errorMessage, out _);
@@ -23,13 +22,14 @@ namespace Hafr.Tests
 
             var model = new Person("Tore Olav", "Kristiansen");
 
-            var actual = expression!.EvaluateModel(model).Single().ToLower();
+            var actual = expression!.EvaluateModel(model).Single();
 
             Assert.Equal(expected, actual);
         }
 
         [Fact]
-        public void Replace_Outputs_Correct_Result() {
+        public void Replace_Outputs_Correct_Result()
+        {
             var result = Parser.TryParse("{lastName | replace('�', 'o')}", out var expression, out var errorMessage, out _);
 
             Assert.True(result, $"Parsing template expression failed: {errorMessage}");
@@ -71,8 +71,8 @@ namespace Hafr.Tests
 
         [Theory]
         [InlineData("{firstName | split}", "An error occurred while calling function 'split': Parameter count mismatch.")]
-        [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, skip, take, substr, replace, reverse")]
-        [InlineData("{firstName | 2}", "Unknown function '2'. Available functions: split, join, skip, take, substr, replace, reverse")]
+        [InlineData("{firstName | blah}", "Unknown function 'blah'. Available functions: split, join, skip, take, substr, replace, reverse, upper, lower, trim, truncate")]
+        [InlineData("{firstName | 2}", "Unknown function '2'. Available functions: split, join, skip, take, substr, replace, reverse, upper, lower, trim, truncate")]
         [InlineData("{substr(2, 2)}", "An error occurred while calling function 'substr': Specified method is not supported.")]
         [InlineData("{unknown}", "Unknown property 'unknown'. Available properties: FirstName, LastName")]
         public void Evaluation_Outputs_Correct_ErrorMessage(string template, string expected)

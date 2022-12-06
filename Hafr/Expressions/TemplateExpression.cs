@@ -1,4 +1,3 @@
-using System.Linq;
 using Superpower.Model;
 
 namespace Hafr.Expressions

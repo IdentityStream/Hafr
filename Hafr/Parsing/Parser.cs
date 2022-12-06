@@ -68,7 +68,7 @@ namespace Hafr.Parsing
                 return false;
             }
 
-            expression = (MultiTemplateExpression) result.Value;
+            expression = (MultiTemplateExpression)result.Value;
             error = null;
             errorPosition = Position.Empty;
             return true;
