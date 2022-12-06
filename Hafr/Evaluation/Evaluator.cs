@@ -185,10 +185,10 @@ namespace Hafr.Evaluation
             {
                 "take", Map<int>(
                     (value, count) => value.Take(count).ToArray(),
-                    (value, count) => value.Substring(0, count))
+                    (value, count) => value.Truncate(count))
             },
             {
-                "substr", Map<int>((s, i) => s.Substring(0, i))
+                "substr", Map<int>((s, i) => s.Truncate(i))
             },
             {
                 "replace", Map<string, string>(
