@@ -11,11 +11,12 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
     <IncludeSymbols>true</IncludeSymbols>
     <RepositoryType>git</RepositoryType>
 
     <GenerateNullableAttributes>false</GenerateNullableAttributes>
-    
+
     <MinVerDefaultPreReleasePhase>beta</MinVerDefaultPreReleasePhase>
     <MinVerTagPrefix>v</MinVerTagPrefix>
 
@@ -31,6 +32,7 @@
 
   <ItemGroup>
     <None Include="../icon.png" Pack="true" PackagePath="/" />
+    <None Include="../README.md" Pack="true" PackagePath="/" />
   </ItemGroup>
 
   <ItemGroup>
