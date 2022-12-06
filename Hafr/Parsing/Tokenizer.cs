@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Superpower;
 using Superpower.Model;
 using Superpower.Parsers;
@@ -33,7 +32,7 @@ namespace Hafr.Parsing
                 ')' => SimpleToken(ref next, TemplateToken.CloseParen, skipWhiteSpace: true),
                 ',' => SimpleToken(ref next, TemplateToken.Comma, skipWhiteSpace: true),
                 '|' => SimpleToken(ref next, TemplateToken.Pipe, skipWhiteSpace: true),
-                  _ => ComplexToken(ref next, state)
+                _ => ComplexToken(ref next, state)
             };
         }
 

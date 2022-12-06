@@ -56,13 +56,13 @@ namespace Hafr.Evaluation
                 throw new ArgumentNullException(nameof(template));
             }
 
-            return TemplateIterator();
+            return TemplateIterator(template.Parts, properties);
 
-            IEnumerable<string> TemplateIterator()
+            static IEnumerable<string> TemplateIterator(IEnumerable<TemplateExpression> templates, IDictionary<string, object?> properties)
             {
-                foreach (var part in template.Parts)
+                foreach (var template in templates)
                 {
-                    yield return EvaluateTemplate(part, properties);
+                    yield return EvaluateTemplate(template, properties);
                 }
             }
         }
@@ -185,27 +185,39 @@ namespace Hafr.Evaluation
             {
                 "take", Map<int>(
                     (value, count) => value.Take(count).ToArray(),
-                    (value, count) => value.Substring(0, count))
+                    (value, count) => value.Truncate(count))
             },
             {
-                "substr", Map<int>((s, i) => s.Substring(0, i))
+                "substr", Map<int>((s, i) => s.Truncate(i))
             },
             {
                 "replace", Map<string, string>(
-                    (value, old, @new) => value.SelectMany(x => x.Replace(old, @new)),
+                    (value, old, @new) => value.Select(x => x.Replace(old, @new)),
                     (value, old, @new) => value.Replace(old, @new))
             },
-            {
-                "reverse", Map(Reverse, Reverse)
-            },
+            { "reverse", Map(Reverse, Reverse) },
+            { "upper", Map(x => x.ToUpper()) },
+            { "lower", Map(x => x.ToLower()) },
+            { "trim", Map(x => x.Trim()) },
+            { "truncate", Map<int>((x, i) => x.Truncate(i)) },
         };
 
-        private static Func<object, T, object> Map<T>(Func<string, T, string> transformer)
+        private static Func<object, T, object> Map<T>(Func<string, T, string> transform)
         {
             return (x, i) => x switch
             {
-                string[] array => array.Select(y => transformer(y, i)).ToArray(),
-                string value => transformer(value, i),
+                string[] array => array.Select(y => transform(y, i)).ToArray(),
+                string value => transform(value, i),
+                _ => throw new NotSupportedException(),
+            };
+        }
+
+        private static Func<object, object> Map(Func<string, string> transform)
+        {
+            return x => x switch
+            {
+                string[] array => array.Select(transform).ToArray(),
+                string value => transform(value),
                 _ => throw new NotSupportedException(),
             };
         }

@@ -9,7 +9,7 @@ public class GenericDictionaryJsonConverter : JsonConverter<Dictionary<string, o
         {
             throw new JsonException("Only objects are supported.");
         }
-        
+
         var result = new Dictionary<string, object?>();
 
         while (reader.Read())
@@ -77,6 +77,6 @@ public class GenericDictionaryJsonConverter : JsonConverter<Dictionary<string, o
             ? dateTimeOffset : reader.GetString();
 
     private static object ReadNumber(ref Utf8JsonReader reader) =>
-        reader.TryGetInt64(out var result) 
+        reader.TryGetInt64(out var result)
             ? result : reader.GetDecimal();
 }
