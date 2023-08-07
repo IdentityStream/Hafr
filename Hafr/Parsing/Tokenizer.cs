@@ -16,49 +16,76 @@ namespace Hafr.Parsing
         {
             var next = SkipWhiteSpace(span);
 
+            var inHole = false;
+
             while (next.HasValue)
             {
-                yield return Tokenize(ref next, state);
+                switch (next.Value)
+                {
+                    case '{' when !inHole:
+                        yield return SimpleToken(ref next, TemplateToken.OpenCurly, skipWhiteSpace: true);
+                        inHole = true;
+                        continue;
+                    case '}' when inHole:
+                        yield return SimpleToken(ref next, TemplateToken.CloseCurly, skipWhiteSpace: false);
+                        inHole = false;
+                        continue;
+                    default:
+                        yield return Tokenize(ref next, inHole);
+                        break;
+                }
             }
         }
 
-        private static Result<TemplateToken> Tokenize(ref Result<char> next, TokenizationState<TemplateToken> state)
+        private static Result<TemplateToken> Tokenize(ref Result<char> next, bool inHole)
         {
-            return next.Value switch
+            if (inHole)
             {
-                '{' => SimpleToken(ref next, TemplateToken.OpenCurly, skipWhiteSpace: true),
-                '}' => SimpleToken(ref next, TemplateToken.CloseCurly, skipWhiteSpace: false),
-                '(' => SimpleToken(ref next, TemplateToken.OpenParen, skipWhiteSpace: true),
-                ')' => SimpleToken(ref next, TemplateToken.CloseParen, skipWhiteSpace: true),
-                ',' => SimpleToken(ref next, TemplateToken.Comma, skipWhiteSpace: true),
-                '|' => SimpleToken(ref next, TemplateToken.Pipe, skipWhiteSpace: true),
-                _ => ComplexToken(ref next, state)
-            };
-        }
-
-        private static Result<TemplateToken> ComplexToken(ref Result<char> next, TokenizationState<TemplateToken> state)
-        {
-            if (ExpectIdentifier(state.Previous?.Kind))
-            {
-                if (char.IsDigit(next.Value))
-                {
-                    return Parse(ref next, TemplateToken.Number, Numerics.IntegerInt32);
-                }
-
-                if (next.Value == '\'')
-                {
-                    return Parse(ref next, TemplateToken.String, QuotedString.SqlStyle);
-                }
-
-                return Parse(ref next, TemplateToken.Identifier, Identifier.CStyle);
+                return TokenizeHole(ref next);
             }
 
-            if (next.Value == '\r' || next.Value == '\n')
+            if (next.Value is '\r' or '\n')
             {
                 return Parse(ref next, TemplateToken.LineBreak, Character.WhiteSpace);
             }
 
             return ConsumeUtil(ref next, TemplateToken.Text, '{');
+
+        }
+
+        private static Result<TemplateToken> TokenizeHole(ref Result<char> next)
+        {
+            if (next.Value == '(')
+            {
+                return SimpleToken(ref next, TemplateToken.OpenParen, skipWhiteSpace: true);
+            }
+
+            if (next.Value == ')')
+            {
+                return SimpleToken(ref next, TemplateToken.CloseParen, skipWhiteSpace: true);
+            }
+
+            if (next.Value == ',')
+            {
+                return SimpleToken(ref next, TemplateToken.Comma, skipWhiteSpace: true);
+            }
+
+            if (next.Value == '|')
+            {
+                return SimpleToken(ref next, TemplateToken.Pipe, skipWhiteSpace: true);
+            }
+
+            if (next.Value == '\'')
+            {
+                return Parse(ref next, TemplateToken.String, QuotedString.SqlStyle);
+            }
+
+            if (char.IsDigit(next.Value))
+            {
+                return Parse(ref next, TemplateToken.Number, Numerics.IntegerInt32);
+            }
+
+            return Parse(ref next, TemplateToken.Identifier, Identifier.CStyle);
         }
 
         private static Result<TemplateToken> Parse<T>(ref Result<char> next, TemplateToken token, TextParser<T> parser)
@@ -93,14 +120,5 @@ namespace Hafr.Parsing
             next = skipWhiteSpace ? SkipWhiteSpace(next.Remainder) : next.Remainder.ConsumeChar();
             return result;
         }
-
-        private static bool ExpectIdentifier(TemplateToken? previous) => previous switch
-        {
-            TemplateToken.OpenCurly => true,
-            TemplateToken.OpenParen => true,
-            TemplateToken.Comma => true,
-            TemplateToken.Pipe => true,
-            _ => false
-        };
     }
 }

@@ -88,6 +88,12 @@ namespace Hafr.Tests
             Assert.Equal(expected, exception.Message);
         }
 
+        [Fact]
+        public void Parsing_Special_Characters_Outside_Holes_Is_Supported()
+        {
+            Assert.True(Parser.TryParse("Hello {name}, this is a | (pipe)", out _, out _, out _));
+        }
+
         private record Person(string FirstName, string LastName);
     }
 }
