@@ -1,3 +1,4 @@
+using Hafr.Api;
 using Hafr.Evaluation;
 using Hafr.Parsing;
 using Microsoft.AspNetCore.Mvc;

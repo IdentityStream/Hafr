@@ -1,6 +1,8 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
+namespace Hafr.Api;
+
 public class GenericDictionaryJsonConverter : JsonConverter<Dictionary<string, object?>>
 {
     public override Dictionary<string, object?> Read(ref Utf8JsonReader reader, Type? typeToConvert, JsonSerializerOptions options)
