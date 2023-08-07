@@ -11,7 +11,6 @@ ProjectSection(SolutionItems) = preProject
 	Directory.Build.props = Directory.Build.props
 	README.md = README.md
 	LICENSE.md = LICENSE.md
-	global.json = global.json
 EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Hafr.Api", "Hafr.Api\Hafr.Api.csproj", "{F0C9C5A8-6A13-4565-AA78-146825EDBE38}"
