@@ -17,7 +17,7 @@
 
     <GenerateNullableAttributes>false</GenerateNullableAttributes>
 
-    <MinVerDefaultPreReleasePhase>beta</MinVerDefaultPreReleasePhase>
+    <MinVerDefaultPreReleaseIdentifiers>beta.0</MinVerDefaultPreReleaseIdentifiers>
     <MinVerTagPrefix>v</MinVerTagPrefix>
 
     <Description>
